@@ -20,4 +20,5 @@ h2 {
     position: fixed;
     right: 25px;
     bottom: 35px;
+    z-index: +1;
 }

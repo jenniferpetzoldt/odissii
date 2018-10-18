@@ -4,6 +4,7 @@ import {FormControl, FormLabel, Input, Button, Checkbox, NativeSelect} from '@ma
 import './editperson.css';
 import {connect} from 'react-redux';
 import { PEOPLE_ACTIONS } from '../../redux/actions/peopleActions';
+import AppBar from './EditPersonAppBar/EditEmployeeAppBar'; 
 
 const mapStateToProps = state => ({
     user: state.user,
@@ -56,9 +57,10 @@ class EditEmployee extends Component {
       }
     render(){
         return(
-            <div className="edit-person-form">
-            <h1>Edit Employee</h1>
-            {JSON.stringify(this.state)}
+            <div>
+            <AppBar/>
+                <div className="edit-person-form">
+                <h1>Edit Employee</h1>
                 <FormControl>
                     <FormLabel>First Name</FormLabel>
                     <Input value={this.state.employee.first_name} onChange={(event)=>this.handleChangeFor('first_name', event)}/>
@@ -87,6 +89,7 @@ class EditEmployee extends Component {
                     <Button onClick={()=>this.props.history.push('/dashboard')}>Cancel</Button>
                 </FormControl>
             </div>
+        </div>
         );
     }
 }

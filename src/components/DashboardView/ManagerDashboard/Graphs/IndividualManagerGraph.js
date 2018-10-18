@@ -12,7 +12,7 @@ class IndividualManagerGraph extends Component {
                 labels: ['Praise', 'Instruct', 'Correct'],
                 datasets: [{
                 data: [parseInt(this.props.feedback.praise), parseInt(this.props.feedback.instruct), parseInt(this.props.feedback.correct)],
-                backgroundColor: ['#0f77e6', '#f17416', 'lightgray'],
+                backgroundColor: ['#4AC985', '#6C9BD1', '#F79B1B'],
                 }]
             },
         }

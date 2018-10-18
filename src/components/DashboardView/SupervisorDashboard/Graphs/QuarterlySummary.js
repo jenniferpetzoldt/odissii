@@ -19,7 +19,7 @@ class QuarterlySummary extends React.Component {
       this.props.dispatch({type: QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES});
     }
   }
-
+  
   render() {
     if (!this.props.quality_types.length) return null;
     

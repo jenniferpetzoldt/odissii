@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import { FEEDBACK_ACTIONS } from '../../../../redux/actions/feedbackActions';
+import { USER_ACTIONS } from '../../../../redux/actions/userActions';
 //Component Views
 import DisplayWeeklyGraph from '../DisplayGraphs/DisplayWeeklyGraph/DisplayWeeklyGraph';
 import DisplayQuarterlyGraph from '../DisplayGraphs/DisplayQuarterlyGraph/DisplayQuarterlyGraph';
@@ -34,6 +36,11 @@ const styles = theme => ({
     },
 });
 
+const mapStateToProps = state => ({
+    user: state.user,
+    feedback: state.feedback.feedback,
+});
+
 class DisplaySwipeableTabs extends Component {
     constructor(props) {
         super(props);
@@ -41,16 +48,6 @@ class DisplaySwipeableTabs extends Component {
             weeklyQualityCount: [],
             quarterlyQualityCount: [],
             annuallyQualityCount: [],
-            value: 0,
-            wPraise: 0,
-            wInstruct: 0,
-            wCorrect: 0,
-            qPraise: 0,
-            qInstruct: 0,
-            qCorrect: 0,
-            aPraise: 0,
-            aInstruct: 0,
-            aCorrect: 0,
         };
     } //end of constructor
 
@@ -63,114 +60,9 @@ class DisplaySwipeableTabs extends Component {
     };
 
     componentDidMount() {
-        this.getWeeklyFeedbackCount();
-        this.getQuarterlyFeedbackCount();
-        this.getAnnuallyFeedbackCount();
+        this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
+        this.props.dispatch({ type: FEEDBACK_ACTIONS.FETCH_CURRENT_EMPLOYEE_FEEDBACK });
     }; //end of componentDidMount()
-
-    //This will get the total feedback for the past 30 days of each category for the employee
-    getWeeklyFeedbackCount() {
-        console.log('in getWeekly');  
-        axios.get(`/api/feedback/employeeWeeklyFeedbackCount/1`)
-            .then((response) => {
-                console.log('');
-                
-                this.setState({
-                    weeklyQualityCount: response.data
-                })  
-                this.sortWeeklyCount(response.data);
-            }).catch((error) => {
-                console.log('error in getWeeklyFeedbackCount', error);
-                alert('Cannot get weekly feedback counts!')
-            });
-    }; //end of getWeeklyFeedbackCount()
-
-    sortWeeklyCount(weekArray) {
-        console.log('DATE', weekArray);
-        for (let i = 0; i < weekArray.length; i++) {
-            if (weekArray[i].name === 'Praise') {
-                this.setState({
-                    wPraise: this.state.wPraise += 1
-                })
-            } else if (weekArray[i].name === 'Instruct') {
-                this.setState({
-                    wInstruct: this.state.wInstruct += 1
-                })
-            } else if (weekArray[i].name === 'Correct') {
-                this.setState({
-                    wCorrect: this.state.wCorrect += 1
-                })
-            }; //end of if-else
-        }; //end of for loop
-    }; //end of sortWeeklyCount()
-
-    //This will get the total quarterly feedback for each category for the employee
-    getQuarterlyFeedbackCount() {
-        console.log('in getQuarterly');
-        axios.get(`/api/feedback/employeeQuarterlyFeedbackCount/1`)
-            .then((response) => {
-                this.setState({
-                    quarterlyQualityCount: response.data
-                })
-                this.sortQuarterlyCount(response.data);
-            }).catch((error) => {
-                console.log('error in getQuarterlyFeedbackCount', error);
-                alert('Cannot get quarterly feedback counts!')
-            });
-    }; //end of getQuarterlyFeedbackCount()
-
-    sortQuarterlyCount(quarterlyArray) {
-        console.log('QUARTERLY', quarterlyArray);
-        for (let i = 0; i < quarterlyArray.length; i++) {
-            if (quarterlyArray[i].name === 'Praise') {
-                this.setState({
-                    qPraise: this.state.qPraise += 1
-                })
-            } else if (quarterlyArray[i].name === 'Instruct') {
-                this.setState({
-                    qInstruct: this.state.qInstruct += 1
-                })
-            } else if (quarterlyArray[i].name === 'Correct') {
-                this.setState({
-                    qCorrect: this.state.qCorrect += 1
-                })
-            }; //end of if-else
-        }; //end of for loop
-    }; //end of sortQuarterlyCount()
-
-    //This will get the total annually feedback for each category for the employee
-    getAnnuallyFeedbackCount() {
-        console.log('in getAnnually');   
-        axios.get(`/api/feedback/employeeAnnuallyFeedbackCount/1`)
-            .then((response) => {
-                this.setState({
-                    annuallyQualityCount: response.data
-                })
-                this.sortAnnuallyCount(response.data);
-            }).catch((error) => {
-                console.log('error in getAnnuallyFeedbackCount', error);
-                alert('Cannot get annually feedback counts!')
-            });
-    }; //end of getAnnuallyFeedbackCount()
-
-    sortAnnuallyCount(annuallyArray) {
-        console.log('QUARTERLY', annuallyArray);
-        for (let i = 0; i < annuallyArray.length; i++) {
-            if (annuallyArray[i].name === 'Praise') {
-                this.setState({
-                    aPraise: this.state.aPraise += 1
-                })
-            } else if (annuallyArray[i].name === 'Instruct') {
-                this.setState({
-                    aInstruct: this.state.aInstruct += 1
-                })
-            } else if (annuallyArray[i].name === 'Correct') {
-                this.setState({
-                    aCorrect: this.state.aCorrect += 1
-                })
-            }; //end of if-else
-        }; //end of for loop
-    }; //end of sortAnnuallyCount()
 
     render() {
         const { theme } = this.props;
@@ -197,18 +89,15 @@ class DisplaySwipeableTabs extends Component {
                     >
                         <TabContainer dir={theme.direction}>
                             {/* This will contain the past 30 days bar chart view */}
-                            {/* {JSON.stringify(this.state.weeklyQualityCount)} */}
-                            <DisplayWeeklyGraph praise={this.state.wPraise} instruct={this.state.wInstruct} correct={this.state.wCorrect} />         
+                            <DisplayWeeklyGraph data={this.props.feedback.currentEmployee} />      
                         </TabContainer>
                         <TabContainer dir={theme.direction}>
                             {/* This will contain the quarterly bar chart view */}
-                            {/* {JSON.stringify(this.state.quarterlyQualityCount)} */}
-                            <DisplayQuarterlyGraph praise={this.state.qPraise} instruct={this.state.qInstruct} correct={this.state.qCorrect} />
+                            <DisplayQuarterlyGraph data={this.props.feedback.currentEmployee}/>
                         </TabContainer>
                         <TabContainer dir={theme.direction}>
                             {/* This will contain the annually bar chart view */}
-                            {/* {JSON.stringify(this.state.annuallyQualityCount)} */}
-                            <DisplayAnnuallyGraph praise={this.state.aPraise} instruct={this.state.aInstruct} correct={this.state.aCorrect} />
+                            <DisplayAnnuallyGraph data={this.props.feedback.currentEmployee}/>
                         </TabContainer>
                     </SwipeableViews>
                 </Grid>
@@ -221,4 +110,4 @@ DisplaySwipeableTabs.propTypes = {
     theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, {withTheme: true})(connect()(DisplaySwipeableTabs));
+export default withStyles(styles, {withTheme: true})(connect(mapStateToProps)(DisplaySwipeableTabs));

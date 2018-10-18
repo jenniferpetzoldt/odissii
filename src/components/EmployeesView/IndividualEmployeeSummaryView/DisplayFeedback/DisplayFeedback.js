@@ -20,17 +20,17 @@ const styles = {
     praiseAvatar: {
         margin: 10,
         color: '#fff',
-        backgroundColor: '#0f77e6',
+        backgroundColor: '#4AC985',
     },
     correctAvatar: {
         margin: 10,
         color: '#fff',
-        backgroundColor: 'lightgrey',
+        backgroundColor: '#F79B1B',
     },
     instructAvatar: {
         margin: 10,
         color: '#fff',
-        backgroundColor: '#f17416',
+        backgroundColor: '#6C9BD1',
     },
     row: {
         display: 'flex',
@@ -43,12 +43,12 @@ class DisplayFeedback extends Component {
 
         //This is how the avatar icon changes according to the category name of the feedback
         let content = null;
-        if (this.props.feedback.name === 'Praise') {
+        if (this.props.feedback.id === 1) {
             content = <TableCell><Avatar style={styles.praiseAvatar}><Icon>thumb_up</Icon></Avatar></TableCell>
-        } else if (this.props.feedback.name === 'Correct') {
+        } else if (this.props.feedback.id === 3) {
             content = <TableCell><Avatar style={styles.correctAvatar}><Icon>thumb_down</Icon></Avatar></TableCell>
-        } else if (this.props.feedback.name === 'Instruct') {
-            content = <TableCell><Avatar style={styles.instructAvatar}><Icon>remove</Icon></Avatar></TableCell>
+        } else if (this.props.feedback.id === 2) {
+            content = <TableCell><Avatar style={styles.instructAvatar}><Icon>thumbs_up_down</Icon></Avatar></TableCell>
         }; //end of if-else
 
         return (

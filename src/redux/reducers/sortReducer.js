@@ -1,6 +1,6 @@
 const initialState = {
-    column: 'last_name',
-    direction: 'asc'
+    column: '',
+    direction: ''
 }
 
 const sortReducer = (state= initialState, action) => {

@@ -8,15 +8,13 @@ import { USER_ACTIONS } from '../../../redux/actions/userActions';
 import { PEOPLE_ACTIONS } from '../../../redux/actions/peopleActions'; 
 import { FEEDBACK_ACTIONS } from '../../../redux/actions/feedbackActions';
 import axios from 'axios';
-import './ManagerDashboard.css';
 import {CSVLink} from 'react-csv';
 import moment from 'moment';
+import './ManagerDashboard.css';
 
 const mapStateToProps = state => ({
   user: state.user,
   people: state.people,
-  feedback: state.feedback.feedback.feedbackCountsByAllSupervisors,
-  detailedFeedback: state.feedback.feedback.feedbackDetailsByAllSupervisors
 });
 
 class ManagerDashboard extends React.Component {
@@ -26,7 +24,9 @@ class ManagerDashboard extends React.Component {
         sortedSupervisors: [],
         praise: [],
         correct: [],
-        instruct: []
+        instruct: [], 
+        feedbackCounts: [], 
+        reports: {}
       }
   }
   componentWillMount(){
@@ -57,7 +57,18 @@ class ManagerDashboard extends React.Component {
       method: 'GET',
       url: `/api/feedback/supervisors/count?id=${id}&start=${start}&end=${end}`
     }).then((response) => {
-      this.props.dispatch({type: FEEDBACK_ACTIONS.SET_ALL_FEEDBACK_BY_MANAGER_SUPERVISORS, payload: response.data});
+      let feedback = [...this.state.feedbackCounts, response.data];
+      console.log(feedback);
+      feedback.sort(function(a, b){
+        let nameA = a[0].last_name;
+        let nameB = b[0].last_name;
+        if(nameA < nameB) return -1;
+        if(nameA > nameB) return 1;
+        return 0;
+    });
+    this.setState({
+      feedbackCounts: feedback
+    })
         this.sortData(response.data); 
       }).catch((error) => {
       console.log('Error getting feedback counts', error); 
@@ -73,7 +84,12 @@ class ManagerDashboard extends React.Component {
       method: 'GET',
       url: `/api/feedback/supervisors/reports?id=${id}&start=${start}&end=${end}`
     }).then((response) => {
-      this.props.dispatch({type: FEEDBACK_ACTIONS.SET_ALL_DETAILED_FEEDBACK_BY_MANAGER_SUPERVISORS, payload: response.data, supervisor: id});
+      this.setState({
+        reports: {
+          ...this.state.reports, 
+          [id]: response.data
+        }
+      })
       }).catch((error) => {
       console.log('Error getting feedback details', error); 
     })
@@ -96,11 +112,21 @@ class ManagerDashboard extends React.Component {
     this.props.history.push('/employees');
   }
   sortSupervisors = (array) => {
+    let sortedSupervisors = [];
     for(let i = 0; i < array.length; i++){
-      this.setState({
-        sortedSupervisors: [...this.state.sortedSupervisors, array[i].first_name + ' ' + array[i].last_name]
-      })
+     sortedSupervisors.push(array[i].last_name + ', ' + array[i].first_name );
+     console.log(sortedSupervisors);
+     sortedSupervisors.sort(function(a, b){
+      let nameA = a[0];
+      let nameB = b[0];
+      if(nameA < nameB) return -1;
+      if(nameA > nameB) return 1;
+      return 0;
+  });
     }
+    this.setState({
+      sortedSupervisors: sortedSupervisors
+    })
   }
   sortData = (array) => {
     for(let i = 0; i < array.length; i++){
@@ -127,7 +153,7 @@ class ManagerDashboard extends React.Component {
               <Typography variant="headline" className="center">All Supervisors</Typography>
               <br/>
           </Grid>
-                {this.props.feedback.map((array, i) => {
+                {this.state.feedbackCounts.map((array, i) => {
                         return(
                         <div key={i}>
                          {array.map((feedback, j)=> {
@@ -140,7 +166,7 @@ class ManagerDashboard extends React.Component {
                                       <Button color ="primary" onClick={this.navToEmployees}>Employees</Button>
                                        <Typography>Feedback given past 12 months</Typography>
                                         <IndividualManagerGraph feedback={feedback}/> 
-                                        {this.props.detailedFeedback[feedback.sid] && <CSVLink data={this.props.detailedFeedback[feedback.sid]}
+                                        {this.state.reports[feedback.sid] && <CSVLink data={this.state.reports[feedback.sid]}
                                           filename={`${feedback.last_name}-feedback.csv`}
                                           target="_blank"
                                         >Download CSV</CSVLink>}

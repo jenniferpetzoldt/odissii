@@ -12,7 +12,7 @@ class DisplayOverallGraph extends Component {
                 labels: ['Praise', 'Instruct', 'Correct'],
                 datasets: [{
                     data: [this.props.totalFeedback.praise, this.props.totalFeedback.instruct, this.props.totalFeedback.correct],
-                    backgroundColor: ['#0f77e6', '#f17416', 'lightgray'],
+                    backgroundColor: ['#4AC985', '#6C9BD1', '#F79B1B'],
                 }]
             },
         }; //end of this.state

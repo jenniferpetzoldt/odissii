@@ -98,7 +98,7 @@ class FeedbackFormView extends React.Component {
       });
     }
 
-    console.log(formField, event.target.value);
+    // console.log(formField, event.target.value);
   };
 
   handleFormSubmit = event => {
@@ -109,7 +109,7 @@ class FeedbackFormView extends React.Component {
     const data = {
       supervisorId,
       employeeId,
-      dateCreated: Date.now(),
+      dateCreated: new Date(),
       quality_id,
       taskRelated,
       cultureRelated,
@@ -174,9 +174,6 @@ class FeedbackFormView extends React.Component {
                 {this.props.quality_types.map(quality => (
                   <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />}/>
                 ))}
-                {/* <FormControlLabel value="praise" label="Praise" control={<Radio />}/>
-                <FormControlLabel value="instruct" label="Instruct" control={<Radio />}/>
-                <FormControlLabel value="correct" label="Correct" control={<Radio />}/> */}
               </RadioGroup>
             </FormControl>
             <FormControl>
@@ -214,22 +211,21 @@ class FeedbackFormView extends React.Component {
               />
             </FormControl>
               {/* follow-up date picker renders if the user checks the "Follow-Up Needed? box" */}
-            {followUpNeeded
-            ? <FormControl>
-                <TextField 
-                  type="date"
-                  label="Follow-Up Date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={followUpDate}
-                  onChange={this.handleInputChange('followUpDate')}
-                />
-              </FormControl> 
-            : null}
+            {followUpNeeded && 
+            <FormControl>
+              <TextField 
+                type="date"
+                label="Follow-Up Date"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                value={followUpDate}
+                onChange={this.handleInputChange('followUpDate')}
+              />
+            </FormControl>}
             <TextField required
               label="Feedback Details"
-              placeholder="Type or dictate feedback details"
+              placeholder="Add feedback details"
               value={details}
               onChange={this.handleInputChange('details')}
               multiline

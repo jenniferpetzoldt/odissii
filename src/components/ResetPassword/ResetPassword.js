@@ -24,7 +24,7 @@ class ResetPassword extends Component {
             url: '/api/user/createtoken',
             data: {email: this.state.email, today: today}
         }).then((response) => {
-            swal('Please check your e-mail! (including your spam folder)');
+            swal('Please check your e-mail (including your spam folder) for a link to reset your password.');
             //send an email with nodemailer that includes the token 
             this.props.history.push('/home'); 
         }).catch((error) => {
@@ -35,11 +35,13 @@ class ResetPassword extends Component {
     render(){
         return(
         <div>
-            <Typography variant="headline">Reset Password</Typography>
             <div className="reset-form">
+            <Typography variant="headline" className="margin-bottom">Reset Password</Typography>
             <Typography>Enter the email address associated with this account.</Typography>
                 <Input onChange={this.handleChange} />
-                <Button onClick={this.handleSubmit}>Submit</Button>
+                <Button onClick={()=>this.props.history.push('/home')}>Cancel</Button>
+                <Button variant="contained" color="primary" onClick={this.handleSubmit}>Submit</Button>
+                
             </div>
         </div>
         );

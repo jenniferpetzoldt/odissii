@@ -19,17 +19,18 @@ class ManagerOverviewGraph extends Component {
         datasets: [
           {
             label: 'Correct',
-            backgroundColor: 'lightgray',
+            backgroundColor: '#F79B1B',
             data: this.props.correct
           },
           {
             label: 'Instruct',
-            backgroundColor: '#f17416',
+            // backgroundColor: '#6F97C4',
+            backgroundColor: '#6C9BD1',
             data: this.props.instruct
           },
           {
             label: 'Praise',
-            backgroundColor: '#0f77e6',
+            backgroundColor: '#4AC985',
             data: this.props.praise
         }
       ]}

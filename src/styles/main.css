@@ -18,12 +18,16 @@ body {
 }
 
 form {
-    background-color: #dbd5d5;
+    /* background-color: #dbd5d5;
     width: 30%;
     height: 250px;
     margin: 20px auto;
-    padding: 25px;
+    padding: 25px; */
     border-radius: 2px;
+    margin-left: 25vw; 
+    margin-right: 25vw; 
+    margin-top: 10vh;
+    margin-bottom: 40vh;
 }
 
 input {
@@ -69,7 +73,9 @@ ul {
 .nav {
     float: left;
 }
-
+.margin-bottom{
+    margin-bottom: 2vh;
+}
 li a {
     display: block;
     color: white;

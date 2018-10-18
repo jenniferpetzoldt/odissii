@@ -221,8 +221,9 @@ router.put('/employee', (req, res) => {
 router.put('/supervisor', (req, res) => {
     if (req.isAuthenticated){
         const detailsToEdit = req.body; 
+        console.log(detailsToEdit);
         const query = `UPDATE "person" SET "first_name" = $1, "last_name" = $2, "employeeId" = $3, "email_address" = $4, "username" = $5 WHERE "id" = $6;`;
-        pool.query(query, [detailsToEdit.first_name, detailsToEdit.last_name, detailsToEdit.employee_ID, detailsToEdit.email_address, detailsToEdit.username, detailsToEdit.id]).then((results)=>{
+        pool.query(query, [detailsToEdit.first_name, detailsToEdit.last_name, detailsToEdit.employeeId, detailsToEdit.email_address, detailsToEdit.username, detailsToEdit.id]).then((results)=>{
             res.sendStatus(200);
         }).catch((error) => {
             console.log('Error updating supervisor', error);

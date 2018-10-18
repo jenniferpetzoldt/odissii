@@ -7,7 +7,8 @@ import {connect} from 'react-redux';
 import AppBar from '../EmployeesView/EmployeeAppBar/AllEmployeeAppBar';
 
 const mapStateToProps = state => ({
-  supervisor: state.people.staff.supervisors
+  supervisor: state.people.staff.supervisors,
+  user: state.user
 });
 class AddPerson extends Component {
   constructor(props) {
@@ -27,6 +28,11 @@ class AddPerson extends Component {
   }
   componentDidMount(){
     this.props.dispatch({type: 'FETCH_SUPERVISORS'});
+  }
+  componentDidUpdate() {
+    if (!this.props.user.isLoading && this.props.user.userName === null) {
+      this.props.history.push('/home');
+    }
   }
   createEmployee = () => {
     this.props.dispatch({type: 'ADD_EMPLOYEE', payload: this.state});
