@@ -7,7 +7,6 @@ import {
 } from 'react-router-dom';
 
 import GridContainer from './components/GridContainer/GridContainer';
-import Header from './components/Header/Header';
 import LoginPage from './components/LoginPage/LoginPage';
 import RegisterPage from './components/RegisterPage/RegisterPage';
 import DashboardView from './components/DashboardView/DashboardView';
@@ -18,9 +17,7 @@ import FeedbackFormView from './components/FeedbackFormView/FeedbackFormView';
 import FeedbackFormConfirmationView from './components/FeedbackFormConfirmationView/FeedbackFormConfirmationView';
 import FeedbackDetailView from './components/FeedbackDetailView/FeedbackDetailView';
 import EmployeeFormView from './components/EmployeeFormView/EmployeeFormView';
-import SettingsView from './components/SettingsView/SettingsView';
 import UserPage from './components/UserPage/UserPage';
-import InfoPage from './components/InfoPage/InfoPage';
 import EditSupervisor from './components/EditPerson/EditSupervisor'; 
 import EditEmployee from './components/EditPerson/EditEmployee'; 
 import AddPerson from './components/AddPerson/AddPerson'; 
@@ -31,7 +28,6 @@ import './styles/main.css';
 
 const App = () => (
   <GridContainer>
-    {/* <Header title="Project Base" /> */}
     <Router>
       <Switch>
         <Redirect exact from="/" to="/home" />
@@ -74,10 +70,6 @@ const App = () => (
         <Route 
           path="/employee/new"
           component={EmployeeFormView}
-        />
-        <Route 
-          path="/settings"
-          component={SettingsView}
         />
         <Route
           path="/user"

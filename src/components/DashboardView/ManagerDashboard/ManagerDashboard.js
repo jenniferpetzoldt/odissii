@@ -26,7 +26,8 @@ class ManagerDashboard extends React.Component {
         correct: [],
         instruct: [], 
         feedbackCounts: [], 
-        reports: {}
+        reports: {},
+        // feedbackCounts: {}
       }
   }
   componentWillMount(){
@@ -56,6 +57,7 @@ class ManagerDashboard extends React.Component {
     axios({
       method: 'GET',
       url: `/api/feedback/supervisors/count?id=${id}&start=${start}&end=${end}`
+      
     }).then((response) => {
       let feedback = [...this.state.feedbackCounts, response.data];
       console.log(feedback);
@@ -66,6 +68,7 @@ class ManagerDashboard extends React.Component {
         if(nameA > nameB) return 1;
         return 0;
     });
+    //instead, get all feedback and sort it by id number in state like how reports are structured. need name, ID, counts of praise, correct, instruct (also maybe task vs culture related?). if i can just filter this, i can avoid lots of mapping
     this.setState({
       feedbackCounts: feedback
     })
@@ -108,8 +111,10 @@ class ManagerDashboard extends React.Component {
     //navigates to the supervisor edit page
     this.props.history.push(`/view/supervisor/${id}`);
   }
-  navToEmployees = () => {
-    this.props.history.push('/employees');
+  navToEmployees = (id) => {
+    this.props.dispatch({type: 'SET_SUPERVISOR_TO_VIEW', payload: {id: id}});
+    //need to dispatch the supervisor's id to redux and then push to it 
+    this.props.history.push(`/employees/`);
   }
   sortSupervisors = (array) => {
     let sortedSupervisors = [];
@@ -129,6 +134,7 @@ class ManagerDashboard extends React.Component {
     })
   }
   sortData = (array) => {
+    console.log(array)
     for(let i = 0; i < array.length; i++){
           this.setState({
             praise: [...this.state.praise, parseInt(array[i].praise)],
@@ -136,8 +142,9 @@ class ManagerDashboard extends React.Component {
             instruct: [...this.state.instruct, parseInt(array[i].instruct)],
           })   
         }
-    }
+  }
   render(){
+
     return (
       <div className="padding-bottom">
         <Grid container spacing={0}>
@@ -163,7 +170,7 @@ class ManagerDashboard extends React.Component {
                                 <div className="card">
                                       <Typography variant="headline">{feedback.first_name} {feedback.last_name} <IconButton onClick={()=> this.editPerson(feedback.sid)}><Edit/></IconButton></Typography>
                                       <Button color ="primary" onClick={()=>this.navTo(feedback.sid)}>Summary</Button>
-                                      <Button color ="primary" onClick={this.navToEmployees}>Employees</Button>
+                                      <Button color ="primary" onClick={()=>this.navToEmployees(feedback.sid)}>Employees</Button>
                                        <Typography>Feedback given past 12 months</Typography>
                                         <IndividualManagerGraph feedback={feedback}/> 
                                         {this.state.reports[feedback.sid] && <CSVLink data={this.state.reports[feedback.sid]}

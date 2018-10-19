@@ -244,9 +244,10 @@ router.get('/supervisors/reports', (req, res) => {
 // will need to do a full join with the feedback_images table to get all associated feedback images
 // and a join to get all follow-up records for all employees if no feedback has been given after the follow-up date
 // should set a limit of responses
-router.get('/employee', (req, res) => {
-    console.log('in GET /employee');
-    const empFeedbackQuery = `SELECT "employee"."first_name", "date_created", "quality_types"."id", "details"
+router.get('/employee/:id', (req, res) => {
+    if(req.isAuthenticated()) {
+        console.log('in GET /employee');
+        const empFeedbackQuery = `SELECT "employee"."first_name", "date_created", "quality_types"."id", "details"
                                 FROM "feedback" 
                                 JOIN "quality_types"
                                 ON "feedback"."quality_id" = "quality_types"."id"
@@ -259,29 +260,38 @@ router.get('/employee', (req, res) => {
     .catch(error => {
       console.log('error in GET /employee', error);
     });
+} else {
+    res.sendStatus(403);
+    }
 });
+
 //will get all feedback count for specific employee
-router.get('/employeeFeedbackCount/1', (req, res) => {
-  console.log('in GET /employeeFeedbackCount');
-  const empFeedbackCntQuery = `SELECT DISTINCT
+router.get('/employeeFeedbackCount/:id', (req, res) => {
+    if(req.isAuthenticated()) {
+        console.log('in GET /employeeFeedbackCount');
+        const employeeId = req.params.id;
+        const empFeedbackCntQuery = `SELECT DISTINCT
 	                            (SELECT COUNT ("feedback"."quality_id")
-	                            FROM "feedback" WHERE "feedback"."quality_id" = 1 AND "feedback"."employee_id" = 1) as Praise,
+	                            FROM "feedback" WHERE "feedback"."quality_id" = 1 AND "feedback"."employee_id" = $1) as Praise,
 	                            (SELECT COUNT ("feedback"."quality_id")
-	                            FROM "feedback" WHERE "feedback"."quality_id" = 2 AND "feedback"."employee_id" = 1) as Instruct,
+	                            FROM "feedback" WHERE "feedback"."quality_id" = 2 AND "feedback"."employee_id" = $1) as Instruct,
 	                            (SELECT COUNT ("feedback"."quality_id")
-	                            FROM "feedback" WHERE "feedback"."quality_id" = 3 AND "feedback"."employee_id" = 1) as Correct
+	                            FROM "feedback" WHERE "feedback"."quality_id" = 3 AND "feedback"."employee_id" = $1) as Correct
                                 FROM "employee"
                                 JOIN "feedback"
                                 ON "feedback"."employee_id" = "employee"."id"
                                 JOIN "quality_types"
                                 ON "feedback"."quality_id" = "quality_types"."id"
-                                WHERE "employee"."id" = 1
+                                WHERE "employee"."id" = $1
                                 GROUP BY "employee"."id", "quality_types"."name";`;
-    pool.query(empFeedbackCntQuery)
-        .then(result => res.send(result.rows))
-        .catch(error => {
-            console.log('error in GET /employeeFeedbackCount', error);
-        });
+        pool.query(empFeedbackCntQuery, [employeeId])
+            .then(result => res.send(result.rows))
+            .catch(error => {
+                console.log('error in GET /employeeFeedbackCount', error);
+            });
+    } else {
+        res.sendStatus(403);
+    }
 });
 
 // gets the most recent feedback record submitted where the req.user.id matches the manager ID

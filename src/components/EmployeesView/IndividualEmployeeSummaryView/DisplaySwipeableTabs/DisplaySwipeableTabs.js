@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import { FEEDBACK_ACTIONS } from '../../../../redux/actions/feedbackActions';
 import { USER_ACTIONS } from '../../../../redux/actions/userActions';
 //Component Views

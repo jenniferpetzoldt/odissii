@@ -5,6 +5,7 @@ import { Grid } from '@material-ui/core';
 import axios from 'axios';
 import { FEEDBACK_ACTIONS } from '../../../redux/actions/feedbackActions';
 import { USER_ACTIONS } from '../../../redux/actions/userActions';
+import { USER_ROLES } from '../../../constants';
 //Components
 import DisplayFeedback from './DisplayFeedback/DisplayFeedback';
 import DisplayOverallGraph from './DisplayGraphs/DisplayOverallGraph/DisplayOverallGraph';
@@ -25,6 +26,7 @@ import TableRow from '@material-ui/core/TableRow';
 const mapStateToProps = state => ({
     user: state.user,
     feedback: state.feedback.feedback,
+    id: state.id,
 });
 
 const styles = {
@@ -51,7 +53,7 @@ class IndividualEmployeeSummaryView extends Component {
 
     //This will get the total feedback of each category for the employee
     getTotalFeedbackCount() {
-        axios.get(`/api/feedback/employeeFeedbackCount/1`)
+        axios.get(`/api/feedback/employeeFeedbackCount/${this.props.id}`)
             .then((response) => {
                 this.setState({
                     totalQualityCount: response.data
@@ -62,7 +64,26 @@ class IndividualEmployeeSummaryView extends Component {
             });
     } //end of getTotalFeedbackCount()
 
+    createNewFeedbackClick = (event) => {
+        this.props.history.push('/feedback/new');
+    }
+
     render() {
+        let btn = null;
+        if (this.props.user.isLoading && this.props.user.userName && this.props.user.role !== USER_ROLES.MANAGER) {
+            btn = (
+                <div className="btnContainer">
+                    <Button variant="fab" color="secondary" aria-label="Edit" style={styles.stickyButton}
+                        onClick={this.createNewFeedbackClick}>
+                        <Icon>edit_icon</Icon>
+                    </Button>
+                </div>
+            )
+        } else if (this.props.user.isLoading && this.props.user.userName && this.props.user.role !== USER_ROLES.SUPERVISOR) {
+            btn = (
+                <div></div>
+            )
+        }
 
         return (
             <div>
@@ -87,13 +108,8 @@ class IndividualEmployeeSummaryView extends Component {
                                     <DisplayOverallGraph key={index} totalFeedback={totalFeedback} />
                                 )
                             })}
-                            {/* This is the FAB for making a new feedback */}
-                            <div className="btnContainer">
-                                <Button variant="fab" color="secondary" aria-label="Edit" style={styles.stickyButton}
-                                    component={Link} to={"/feedback/new"}>
-                                    <Icon>edit_icon</Icon>
-                                </Button>
-                            </div>
+                            {/* This is the FAB for making a new feedback but will only show if the user is a supervisor */}
+                            { btn }
                             <h2>Feedbacks:</h2>
                             <DisplaySwipeableTabs />
                             <h2>Latest Feedbacks:</h2>

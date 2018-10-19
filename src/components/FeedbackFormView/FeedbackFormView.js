@@ -16,9 +16,9 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 
 import Nav from '../Nav/Nav';
+import FeedbackFormAppBar from './FeedbackFormAppBar';
 
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { PEOPLE_ACTIONS } from '../../redux/actions/peopleActions';
@@ -178,10 +178,8 @@ class FeedbackFormView extends React.Component {
     return (
       <Grid container>
         <Grid item xs={12}>
+          <FeedbackFormAppBar />
           <Nav />
-          <Typography variant="h4" className="center">
-            New Feedback
-          </Typography>
           <form onSubmit={this.handleFormSubmit}>
             <FormControl required>
               <InputLabel shrink htmlFor="employeeId">Employee</InputLabel>

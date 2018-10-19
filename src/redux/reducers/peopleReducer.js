@@ -5,6 +5,7 @@ const peopleType = {
     supervisors: [],
     supervisorEmployees: [],
     allEmployees: [],
+    supervisorToView: ''
 }
 
 const staff = (state = peopleType, action) => {
@@ -14,7 +15,9 @@ const staff = (state = peopleType, action) => {
         return {...state, supervisorEmployees: action.payload};
     } else if (action.type === PEOPLE_ACTIONS.SET_ALL_EMPLOYEES) {
         return {...state, allEmployees: action.payload}
-    } 
+    } else if (action.type === 'SET_SUPERVISOR_TO_VIEW'){
+        return {...state, supervisorToView: action.payload}
+    }
     return state;
 };
 

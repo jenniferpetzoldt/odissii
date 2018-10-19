@@ -39,6 +39,11 @@ const styles = {
 }; //end of styles
 
 class DisplayFeedback extends Component {
+
+    clickHandler = (event) => {
+        this.props.history.push('/feedback/detail/:feedbackId')
+    }
+
     render() {
 
         //This is how the avatar icon changes according to the category name of the feedback
@@ -57,7 +62,7 @@ class DisplayFeedback extends Component {
                 { content }
                 {/* This is how the details of the feedback are only displaying up to a certain
                 character length instead of the whole feedback displaying */}
-                <TableCell>{this.props.feedback.details.slice(0,15)}...</TableCell>
+                <TableCell onClick={this.clickHandler}>{this.props.feedback.details.slice(0,15)}...</TableCell>
                 {/* This is how the date is formatted coming back from the server */}
                 <TableCell>{moment(this.props.feedback.date_created).format("MM/DD/YY")}</TableCell>
             </TableRow>

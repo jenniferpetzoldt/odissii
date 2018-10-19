@@ -76,6 +76,7 @@ router.put('/createtoken', (req, res) => {
       html: `<p>You requested a password reset for your odissii login.</p>
       <p>http://localhost:3000/#/reset/password/${token}</p>`
   }
+  console.log(`http://localhost:3000/#/reset/password/${token}`);
   transporter.sendMail(mail, function(err, info) {
       if (err) {
           console.log('nodemailer error', err);
