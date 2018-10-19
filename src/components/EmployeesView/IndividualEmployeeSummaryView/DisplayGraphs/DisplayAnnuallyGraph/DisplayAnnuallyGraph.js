@@ -82,17 +82,17 @@ class DisplayAnnuallyGraph extends Component {
         let barData = {
             datasets: [{
                 label: 'Praise',
-                data: qualityByMonth(monthlyTotals, getIdForQuality(quality_types, 'Praise')),
+                data: qualityByMonth(monthlyTotals, getIdForQuality(quality_types, 'praise')),
                 backgroundColor: '#4AC985',
             },
             {
                 label: 'Instruct',
-                data: qualityByMonth(monthlyTotals, getIdForQuality(quality_types, 'Instruct')),
+                data: qualityByMonth(monthlyTotals, getIdForQuality(quality_types, 'instruct')),
                 backgroundColor: '#6C9BD1',
             },
             {
                 label: 'Correct',
-                data: qualityByMonth(monthlyTotals, getIdForQuality(quality_types, 'Correct')),
+                data: qualityByMonth(monthlyTotals, getIdForQuality(quality_types, 'correct')),
                 backgroundColor: '#F79B1B',
             }],
             labels: getMonthlyNames(),

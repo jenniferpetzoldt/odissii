@@ -61,17 +61,17 @@ router.post('/', (req, res) => {
   }
 });
 
-router.put('/:id/complete', (req, res) => {
+router.put('/complete/:employeeId', (req, res) => {
   if (req.isAuthenticated()) {
-    const followUpId = req.params.id;
-    const queryText = `UPDATE "follow_up" SET "completed" = true WHERE "id" = $1;`;
+    const employeeId = req.params.employeeId;
+    const queryText = `UPDATE "follow_up" SET "completed" = true WHERE "employee_id" = $1;`;
 
-    pool.query(queryText, [followUpId])
+    pool.query(queryText, [employeeId])
     .then(response => {
-      console.log(`/api/folllowup/${followUpId}/complete PUT success:`, response);
+      console.log(`/api/folllowup/complete/${employeeId} PUT success:`, response);
       res.sendStatus(200);
     }).catch(error => {
-      console.log(`/api/folllowup/${followUpId}/complete PUT error:`, error);
+      console.log(`/api/folllowup/complete/${employeeId} PUT error:`, error);
       res.sendStatus(500);
     });
   } else {

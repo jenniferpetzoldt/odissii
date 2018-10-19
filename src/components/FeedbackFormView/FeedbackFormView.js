@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
 import Grid from '@material-ui/core/Grid';
 import FormControl from '@material-ui/core/FormControl';
@@ -15,27 +16,21 @@ import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 import Nav from '../Nav/Nav';
 
 import { USER_ACTIONS } from '../../redux/actions/userActions';
+import { PEOPLE_ACTIONS } from '../../redux/actions/peopleActions';
 import { FEEDBACK_ACTIONS } from '../../redux/actions/feedbackActions';
 import { FOLLOW_UP_ACTIONS } from '../../redux/actions/followupActions';
 import { QUALITY_ACTIONS } from '../../redux/actions/qualityActions';
-import { USER_ROLES, employees } from '../../constants';
-
-// CREATE TABLE employee (
-//   id SERIAL PRIMARY KEY,
-//   employeeId VARCHAR (255) UNIQUE NOT NULL,
-//   first_name VARCHAR (255) NOT NULL,
-//   last_name VARCHAR (255) NOT NULL,
-//   image_path VARCHAR (255)
-// );
-
+import { USER_ROLES } from '../../constants';
 
 const mapStateToProps = state => ({
   user: state.user,
   quality_types: state.quality_types,
+  employees: state.people.staff.supervisorEmployees,
   newPostedFeedback: state.feedback.newPostedFeedback,
   newPostedFollowup: state.followup.newPostedFollowup,
 });
@@ -64,15 +59,19 @@ class FeedbackFormView extends React.Component {
   }
   
   componentDidUpdate() {
-    const {user, newPostedFeedback, newPostedFollowup, dispatch, history} = this.props;
+    const {user, employees, newPostedFeedback, newPostedFollowup, dispatch, history} = this.props;
 
     if (!user.isLoading && user.userName === null) {
       history.push('/home');
+    } else if (!user.isLoading && user.userName && user.role !== USER_ROLES.SUPERVISOR) {
+      history.push('/dashboard');
+    } else if (!user.isLoading && user.userName && user.role === USER_ROLES.SUPERVISOR) {
+      if (!employees.length) {
+        this.getEmployees();
+      }
     }
     
-    if (!user.isLoading && user.userName && user.role !== USER_ROLES.SUPERVISOR) {
-      history.push('/dashboard');
-    } else if (newPostedFeedback) {
+    if (newPostedFeedback) {
       if (this.state.followUpNeeded) {
         if (newPostedFollowup) {
           dispatch({type: FEEDBACK_ACTIONS.DISPLAY_FEEDBACK_CONFIRMATION});
@@ -84,6 +83,18 @@ class FeedbackFormView extends React.Component {
       }
     }
   }
+
+  getEmployees = () => {
+    const { user, dispatch } = this.props;
+    axios.get(`/api/staff/employees/${user.id}`)
+    .then((response) => {
+      const employees = response.data;
+      dispatch({ type: PEOPLE_ACTIONS.SET_SUPERVISOR_EMPLOYEES, payload: employees });
+    }).catch((error) => {
+      console.log('Supervisor Employee List get error', error);
+      alert('Unable to GET supervisor employees');
+    })
+  };
 
   handleInputChange = formField => event => {
     // if the form field is for a boolean value...
@@ -97,8 +108,6 @@ class FeedbackFormView extends React.Component {
         [formField]: event.target.value
       });
     }
-
-    // console.log(formField, event.target.value);
   };
 
   handleFormSubmit = event => {
@@ -106,6 +115,8 @@ class FeedbackFormView extends React.Component {
     const {employeeId, quality_id, taskRelated, cultureRelated, followUpNeeded, followUpDate, details} = this.state;
     const supervisorId = this.props.user.id;
 
+    const employeeHasPendingFollowUp = this.props.employees.find(employee => employee.id == employeeId).incomplete;
+    
     const data = {
       supervisorId,
       employeeId,
@@ -121,7 +132,22 @@ class FeedbackFormView extends React.Component {
       payload: data
     });
 
-    if (followUpNeeded) {
+    if (employeeHasPendingFollowUp) {
+      axios.put(`/api/followup/complete/${employeeId}`)
+      .then(() => {
+        if (followUpNeeded) {
+          this.props.dispatch({
+            type: FOLLOW_UP_ACTIONS.ADD_FOLLOWUP,
+            payload: {
+              employeeId,
+              followUpDate
+            }
+          });
+        }
+      }).catch(error => {
+        console.log(`/api/followup/complete/${employeeId} PUT error:`, error);
+      });
+    } else if (followUpNeeded) {
       this.props.dispatch({
         type: FOLLOW_UP_ACTIONS.ADD_FOLLOWUP,
         payload: {
@@ -130,24 +156,33 @@ class FeedbackFormView extends React.Component {
         }
       });
     }
-
-    console.log('form submitted:', data);
   };
 
-  backToPreviousPage = event => {
-    console.log('back to previous page');
+  backToDashboard = () => {
+    this.props.history.push('/dashboard');
   };
 
   render() {
-    const {employeeId, quality_id, taskRelated, cultureRelated, details, followUpNeeded, followUpDate} = this.state;
+    const {
+      employeeId, 
+      quality_id, 
+      taskRelated, 
+      cultureRelated, 
+      details, 
+      followUpNeeded, 
+      followUpDate
+    } = this.state;
+
+    const { employees } = this.props;
+
     return (
       <Grid container>
         <Grid item xs={12}>
           <Nav />
-          <div>
-            This is the feedback form.
-          </div>
-          <form style={{width: '75%', maxWidth: '500px'}} onSubmit={this.handleFormSubmit}>
+          <Typography variant="h4" className="center">
+            New Feedback
+          </Typography>
+          <form onSubmit={this.handleFormSubmit}>
             <FormControl required>
               <InputLabel shrink htmlFor="employeeId">Employee</InputLabel>
               <NativeSelect
@@ -231,7 +266,7 @@ class FeedbackFormView extends React.Component {
               multiline
             />
             <div>
-              <Button onClick={this.backToPreviousPage}>Cancel</Button>
+              <Button onClick={this.backToDashboard}>Cancel</Button>
               <Button type="submit" color="primary" variant="contained">Submit</Button>
             </div>
           </form>

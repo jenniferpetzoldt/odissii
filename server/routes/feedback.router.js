@@ -306,7 +306,7 @@ router.post('/', (req, res) => {
                 "task_related", 
                 "culture_related", 
                 "details"
-            ) VALUES ($1, $2, to_timestamp($3 / 1000.0), $4, $5, $6, $7) RETURNING *;`;
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`;
 
     pool.query(queryText, [
       data.supervisorId,
@@ -395,23 +395,7 @@ router.put('/', (req, res) => {
     })().catch(error => {
       console.log('/api/feedback PUT error:', error);
       res.sendStatus(500);
-    })
-
-    
-    // pool.query(queryText, [
-    //   feedback.id, 
-    //   feedback.quality_id, 
-    //   feedback.task_related,
-    //   feedback.culture_related,
-    //   feedback.details,
-    //   feedback.date_edited,
-    // ]).then(response => {
-    //   console.log('/api/feedback PUT success');
-    //   res.sendStatus(200);
-    // }).catch(error => {
-    //   console.log('/api/feedback PUT error:', error);
-    //   res.sendStatus(500);
-    // });
+    });
   } else {
     res.sendStatus(401);
   }

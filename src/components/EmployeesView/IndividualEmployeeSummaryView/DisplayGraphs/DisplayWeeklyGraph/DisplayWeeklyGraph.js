@@ -88,17 +88,17 @@ class DisplayWeeklyGraph extends Component {
         let barData = {
             datasets: [{
                 label: 'Praise',
-                data: qualityByWeek(weeklyQualityTotals, getIdForQuality(quality_types, 'Praise')),
+                data: qualityByWeek(weeklyQualityTotals, getIdForQuality(quality_types, 'praise')),
                 backgroundColor: '#4AC985',
             },
             {
                 label: 'Instruct',
-                data: qualityByWeek(weeklyQualityTotals, getIdForQuality(quality_types, 'Instruct')),
+                data: qualityByWeek(weeklyQualityTotals, getIdForQuality(quality_types, 'instruct')),
                 backgroundColor: '#6C9BD1',
             },
             {
                 label: 'Correct',
-                data: qualityByWeek(weeklyQualityTotals, getIdForQuality(quality_types, 'Correct')),
+                data: qualityByWeek(weeklyQualityTotals, getIdForQuality(quality_types, 'correct')),
                 backgroundColor: '#F79B1B',
             }],
             labels: weekNames,
