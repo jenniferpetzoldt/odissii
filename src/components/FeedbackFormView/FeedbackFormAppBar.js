@@ -5,16 +5,15 @@ import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 
 
-const mapStateToProps = state => ({
-    user: state.user,
-})
+// const mapStateToProps = state => ({
+//     user: state.user,
+// });
 
 class FeedbackFormAppBar extends React.Component {
-
     handleClick = (event) => {
-        console.log('in handleClick');
         this.props.history.push('/dashboard');
-    }
+    };
+
     render() {
         return (
             <AppBar position="sticky">
@@ -27,4 +26,4 @@ class FeedbackFormAppBar extends React.Component {
     }
 }
 
-export default withRouter(connect(mapStateToProps)(FeedbackFormAppBar));
+export default withRouter(connect()(FeedbackFormAppBar));

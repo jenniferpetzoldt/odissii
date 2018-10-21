@@ -5,7 +5,7 @@ import axios from 'axios';
 // fetch all feedback pertaining to a specific employee
 function* fetchCurrentEmployeeFeedback(action){
     try {
-        const feedbackResponse = yield call(axios.get, `/api/feedback/employee?id=${action.payload}`);
+        const feedbackResponse = yield call(axios.get, `/api/feedback/employee/${action.payload.id}`);
         console.log('in fetchCurrentEmployeeFeedback');
         const responseAction = {type: FEEDBACK_ACTIONS.SET_CURRENT_EMPLOYEE_FEEDBACK, payload: feedbackResponse.data};
         yield put(responseAction);

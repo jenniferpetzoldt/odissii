@@ -179,9 +179,7 @@ router.get('/supervisors/all', (req, res) => {
     res.sendStatus(403);
   }
 });
-// counts all praise, instruct, and correct feedback that a supervisor has given 
-// req.query will contain the supervisor id 
-// results are limited to 30. this can be a variable passed through the query if desired. 
+// counts all praise, instruct, and correct feedback that a supervisor has given  
 router.get('/supervisors/count', (req, res) => {
   if (req.isAuthenticated()) {
     const supervisor = req.query.id;
@@ -247,15 +245,16 @@ router.get('/supervisors/reports', (req, res) => {
 router.get('/employee/:id', (req, res) => {
     if(req.isAuthenticated()) {
         console.log('in GET /employee');
-        const empFeedbackQuery = `SELECT "employee"."first_name", "date_created", "quality_types"."id", "details"
+        employeeId = req.params.id;
+        const empFeedbackQuery = `SELECT "employee"."first_name", "feedback"."id" as "feedbackId", "date_created", "quality_types"."id", "details"
                                 FROM "feedback" 
                                 JOIN "quality_types"
                                 ON "feedback"."quality_id" = "quality_types"."id"
                                 JOIN "employee"
                                 ON "feedback"."employee_id" = "employee"."id"
-                                WHERE "employee_id" = 1 
+                                WHERE "employee_id" = $1 
                                 ORDER BY "date_created" DESC`;
-  pool.query(empFeedbackQuery)
+  pool.query(empFeedbackQuery, [employeeId])
     .then(result => res.send(result.rows))
     .catch(error => {
       console.log('error in GET /employee', error);
@@ -284,6 +283,7 @@ router.get('/employeeFeedbackCount/:id', (req, res) => {
                                 ON "feedback"."quality_id" = "quality_types"."id"
                                 WHERE "employee"."id" = $1
                                 GROUP BY "employee"."id", "quality_types"."name";`;
+
         pool.query(empFeedbackCntQuery, [employeeId])
             .then(result => res.send(result.rows))
             .catch(error => {
@@ -362,8 +362,8 @@ router.put('/', (req, res) => {
           WHERE "id" = $1;
         `;
         await pool.query(queryText, [
-          feedback.id, 
-          feedback.quality_id, 
+          feedback.id,
+          feedback.quality_id,
           feedback.task_related,
           feedback.culture_related,
           feedback.details,
@@ -399,7 +399,7 @@ router.put('/', (req, res) => {
 
         console.log('/api/feedback PUT success');
         res.sendStatus(200);
-      } catch(error) {
+      } catch (error) {
         throw error;
       }
     })().catch(error => {

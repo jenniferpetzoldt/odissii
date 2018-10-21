@@ -14,6 +14,9 @@ import DisplaySwipeableTabs from './DisplaySwipeableTabs/DisplaySwipeableTabs';
 import './IndividualEmployeeSummaryView.css';
 import { withStyles } from '@material-ui/core/styles';
 //Buttons
+import { AppBar, Toolbar, IconButton } from '@material-ui/core';
+import ArrowBack from '@material-ui/icons/ArrowBack';
+
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 //Material Table
@@ -35,6 +38,9 @@ const styles = {
         justifyContent: 'center',
         backgroundColor: 'black',
     },
+    grow: {
+        flexGrow: 1,
+    }
 }; //end of styles
 
 class IndividualEmployeeSummaryView extends Component {
@@ -48,7 +54,7 @@ class IndividualEmployeeSummaryView extends Component {
     componentDidMount() {
         this.getTotalFeedbackCount();
         this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
-        this.props.dispatch({ type: FEEDBACK_ACTIONS.FETCH_CURRENT_EMPLOYEE_FEEDBACK });
+        this.props.dispatch({ type: FEEDBACK_ACTIONS.FETCH_CURRENT_EMPLOYEE_FEEDBACK, payload: { id: this.props.id } });
     } //end of componentDidMount
 
     //This will get the total feedback of each category for the employee
@@ -70,7 +76,7 @@ class IndividualEmployeeSummaryView extends Component {
 
     render() {
         let btn = null;
-        if (this.props.user.isLoading && this.props.user.userName && this.props.user.role !== USER_ROLES.MANAGER) {
+        if (this.props.user.role === USER_ROLES.SUPERVISOR) {
             btn = (
                 <div className="btnContainer">
                     <Button variant="fab" color="secondary" aria-label="Edit" style={styles.stickyButton}
@@ -79,7 +85,7 @@ class IndividualEmployeeSummaryView extends Component {
                     </Button>
                 </div>
             )
-        } else if (this.props.user.isLoading && this.props.user.userName && this.props.user.role !== USER_ROLES.SUPERVISOR) {
+        } else if (this.props.user.role === USER_ROLES.MANAGER) {
             btn = (
                 <div></div>
             )
@@ -91,14 +97,18 @@ class IndividualEmployeeSummaryView extends Component {
                     <Grid item xs={12}>
                         <div className="outer">
                             <div className="header">
-                                <h1>
-                                    {/* This arrow_back icon button will take the user back to the /employees view */}
-                                    <Button component={Link} to={"/employees"}>
-                                        <Icon>arrow_back</Icon>
-                                    </Button>
-                                    {/* If the selected employee name is not yet render, display null, otherwise display the first name */}
-                                    {this.props.feedback.currentEmployee[0] ? this.props.feedback.currentEmployee[0].first_name : null}
-                                </h1>
+                                <AppBar position="sticky">
+                                    <Toolbar>
+                                        {/* This arrow_back icon button will take the user back to the /employees view */}
+                                        <IconButton component={Link} to={"/employees"}>
+                                            <ArrowBack />
+                                        </IconButton>
+                                        {/* If the selected employee name is not yet render, display null, otherwise display the first name */}
+                                        <h1>{this.props.feedback.currentEmployee[0] ? this.props.feedback.currentEmployee[0].first_name : null}</h1>
+                                        <div style={styles.grow}/>
+                                    </Toolbar>
+                                </AppBar>
+
                             </div>
                             <h2>Overall Summary:</h2>
                             {/* {JSON.stringify(this.state.totalQualityCount)} */}
@@ -109,7 +119,7 @@ class IndividualEmployeeSummaryView extends Component {
                                 )
                             })}
                             {/* This is the FAB for making a new feedback but will only show if the user is a supervisor */}
-                            { btn }
+                            {btn}
                             <h2>Feedbacks:</h2>
                             <DisplaySwipeableTabs />
                             <h2>Latest Feedbacks:</h2>
@@ -127,7 +137,7 @@ class IndividualEmployeeSummaryView extends Component {
                                         {/* This will map over the array and pass it as "feedback" to the DisplayFeedback Component */}
                                         {this.props.feedback.currentEmployee.map((feedbacksAtIndex, index) => {
                                             return (
-                                                <DisplayFeedback key={index} feedback={feedbacksAtIndex} />
+                                                <DisplayFeedback key={index} feedback={feedbacksAtIndex} history={this.props.history} />
                                             )
                                         })}
                                     </TableBody>

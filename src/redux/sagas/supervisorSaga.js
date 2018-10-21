@@ -1,7 +1,6 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { PEOPLE_ACTIONS } from '../actions/peopleActions';
 import axios from 'axios'; 
-import swal from 'sweetalert'; 
 // will be called to fetch all supervisors 
 function* fetchSupervisors(){
     try{
@@ -27,7 +26,6 @@ function* addSupervisor(action){
 function* updateSupervisor(action){
     try {
         yield call(axios.put, '/api/staff/supervisor', action.payload);
-        yield put(swal('Success!', 'Supervisor edited', 'success')); 
         yield put({type: PEOPLE_ACTIONS.FETCH_SUPERVISORS});
     } catch(error){
         console.log('Cannot update supervisor', error);

@@ -41,7 +41,7 @@ const styles = {
 class DisplayFeedback extends Component {
 
     clickHandler = (event) => {
-        this.props.history.push('/feedback/detail/:feedbackId')
+        this.props.history.push(`/feedback/detail/${this.props.feedback.feedbackId}`)
     }
 
     render() {
@@ -57,6 +57,8 @@ class DisplayFeedback extends Component {
         }; //end of if-else
 
         return (
+            <div>
+                {JSON.stringify(this.props.feedback.feedbackId)}
             <TableRow>
                 {/* {content} is coming from the changing avatar icon logic */}
                 { content }
@@ -66,6 +68,7 @@ class DisplayFeedback extends Component {
                 {/* This is how the date is formatted coming back from the server */}
                 <TableCell>{moment(this.props.feedback.date_created).format("MM/DD/YY")}</TableCell>
             </TableRow>
+            </div>
         ) //end of return
     } //end of render
 } //end of DisplayFeedback

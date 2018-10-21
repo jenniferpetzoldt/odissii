@@ -5,6 +5,7 @@ import axios from 'axios';
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { USER_ROLES } from '../../constants';
 
+import SupervisorDetailAppBar from './SupervisorDetailAppBar';
 import QuarterlySummary from '../DashboardView/SupervisorDashboard/Graphs/QuarterlySummary';
 import PastThreeWeeks from '../DashboardView/SupervisorDashboard/Graphs/PastThreeWeeks';
 import PastTwelveMonths from '../DashboardView/SupervisorDashboard/Graphs/PastTwelveMonths';
@@ -54,8 +55,9 @@ class SupervisorDetailView extends React.Component {
     const { feedbackHistory } = this.state;
     return (
       <div>
-        <h2>supervisor detail view</h2>
-        <button onClick={() => this.props.history.push('/dashboard')}>Back</button>
+        <SupervisorDetailAppBar />
+        {/* <h2>supervisor detail view</h2>
+        <button onClick={() => this.props.history.push('/dashboard')}>Back</button> */}
         <QuarterlySummary data={feedbackHistory} />
         <PastThreeWeeks data={feedbackHistory} />
         <PastTwelveMonths data={feedbackHistory} />

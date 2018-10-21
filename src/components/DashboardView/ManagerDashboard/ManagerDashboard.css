@@ -4,7 +4,8 @@
     margin-right: .5vw;
     margin-top: 1vw;
     margin-bottom: 1vw;
-    float: left; 
+    align-content: left; 
+    /* float: left;  */
     border: 1px solid gray;
     text-align: center; 
     background-color: white; 
@@ -13,8 +14,11 @@
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 .card-container{
-  margin-left: 6vw;
   text-align: center; 
+  display: flex; 
+  flex-direction: row; 
+  flex-wrap: wrap; 
+  justify-content: space-evenly; 
 }
 .padding-bottom{
     padding-bottom: 20vh; 
