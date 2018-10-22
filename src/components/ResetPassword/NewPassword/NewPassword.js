@@ -44,7 +44,6 @@ class NewPassword extends Component {
     render(){
         return(
             <div className="reset-form">
-            {JSON.stringify(this.state)}
             <Typography variant="headline">Create New Password</Typography>
             <FormLabel>Email address:
                 <Input onChange={(event)=>this.handleChange('email_address', event)} /><br/>

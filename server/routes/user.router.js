@@ -69,17 +69,17 @@ router.put('/createtoken', (req, res) => {
   let queryText = `UPDATE "person" SET "token" = $1, "expiration" = $2 WHERE "email_address" = $3;`;
   pool.query(queryText, [token, expiration, email]).then((result) => {
     let mail = {
-      from: "odissii <app.odissii@gmail.com>",
-      to: `${req.body.email}`,
+      from: `odissii <${process.env.my_gmail_username}>`,
+      to: `${email}`,
       subject: "odissii password reset",
       text: "You requested a password reset for your odissii login.",
       html: `<p>You requested a password reset for your odissii login.</p>
       <p>http://localhost:3000/#/reset/password/${token}</p>`
   }
-  console.log(`http://localhost:3000/#/reset/password/${token}`);
   transporter.sendMail(mail, function(err, info) {
       if (err) {
           console.log('nodemailer error', err);
+          
       } else {
           console.log("info.messageId: " + info.messageId);
           console.log("info.envelope: " + info.envelope);
@@ -87,10 +87,10 @@ router.put('/createtoken', (req, res) => {
           console.log("info.rejected: " + info.rejected);
           console.log("info.pending: " + info.pending);
           console.log("info.response: " + info.response);
+          res.sendStatus(200);
       }
       transporter.close();
   })
-    res.sendStatus(200);
   }).catch((error) => {
     console.log(error);
     res.sendStatus(500);
@@ -100,7 +100,6 @@ router.put('/resetpassword', (req, res) => {
   const updates = req.body; 
   console.log(updates); 
   const password = encryptLib.encryptPassword(req.body.password);
-  console.log(password); 
   const query = `UPDATE "person" SET "password" = $1, "expiration" = now(), "token" = 'null' 
                 WHERE "token" = $2 AND "expiration" > now() AND "email_address" = $3;`;
   pool.query(query, [password, updates.token, updates.email_address]).then((results) => {

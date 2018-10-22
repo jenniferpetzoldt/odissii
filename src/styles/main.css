@@ -105,10 +105,4 @@ li a:hover {
     color: #eee;
 }
 
-.outer {
-    border: 1px solid red;
-    display: flex;
-    justify-content: flex-end;
-    flex-direction: column;
-  }
   

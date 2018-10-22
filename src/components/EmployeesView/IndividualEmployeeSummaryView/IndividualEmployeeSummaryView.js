@@ -14,9 +14,10 @@ import DisplaySwipeableTabs from './DisplaySwipeableTabs/DisplaySwipeableTabs';
 import './IndividualEmployeeSummaryView.css';
 import { withStyles } from '@material-ui/core/styles';
 //Buttons
-import { AppBar, Toolbar, IconButton } from '@material-ui/core';
+import { AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
 import ArrowBack from '@material-ui/icons/ArrowBack';
-
+import ArrowDropUp from '@material-ui/icons/ArrowDropUp';
+import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 //Material Table
@@ -26,22 +27,42 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
+import orderBy from 'lodash/orderBy';
+
+
 const mapStateToProps = state => ({
     user: state.user,
     feedback: state.feedback.feedback,
     id: state.id,
+    sort: state.sort
 });
 
 const styles = {
     row: {
         display: 'flex',
         justifyContent: 'center',
-        backgroundColor: 'black',
     },
     grow: {
         flexGrow: 1,
+    },
+    tableCell: {
+        textAlign: 'center',
+        padding: 0,
+    },
+    grid: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    color: {
+        color: '#f7fcff',
     }
 }; //end of styles
+
+const invertDirection = {
+    asc: 'desc',
+    desc: 'asc'
+}
 
 class IndividualEmployeeSummaryView extends Component {
     constructor(props) {
@@ -53,6 +74,7 @@ class IndividualEmployeeSummaryView extends Component {
 
     componentDidMount() {
         this.getTotalFeedbackCount();
+        orderBy(this.state.feedback, this.props.sort.column, this.props.sort.direction);
         this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
         this.props.dispatch({ type: FEEDBACK_ACTIONS.FETCH_CURRENT_EMPLOYEE_FEEDBACK, payload: { id: this.props.id } });
     } //end of componentDidMount
@@ -74,6 +96,12 @@ class IndividualEmployeeSummaryView extends Component {
         this.props.history.push('/feedback/new');
     }
 
+    handleSort = columnName => {
+        this.props.dispatch({ type: 'ADD_COLUMN_TO_SORT', payload: columnName });
+        let direction = this.props.sort.column === columnName ? invertDirection[this.props.sort.direction] : 'desc';
+        this.props.dispatch({ type: 'ADD_SORT_DIRECTION', payload: direction })
+    }
+
     render() {
         let btn = null;
         if (this.props.user.role === USER_ROLES.SUPERVISOR) {
@@ -90,27 +118,26 @@ class IndividualEmployeeSummaryView extends Component {
                 <div></div>
             )
         }
+        let data = orderBy(this.props.feedback.currentEmployee, this.props.sort.column, this.props.sort.direction);
 
         return (
-            <div>
+            <div className="container">
                 <Grid container spacing={0}>
                     <Grid item xs={12}>
                         <div className="outer">
-                            <div className="header">
                                 <AppBar position="sticky">
                                     <Toolbar>
                                         {/* This arrow_back icon button will take the user back to the /employees view */}
                                         <IconButton component={Link} to={"/employees"}>
-                                            <ArrowBack />
+                                            <ArrowBack style={styles.color}/>
                                         </IconButton>
                                         {/* If the selected employee name is not yet render, display null, otherwise display the first name */}
-                                        <h1>{this.props.feedback.currentEmployee[0] ? this.props.feedback.currentEmployee[0].first_name : null}</h1>
-                                        <div style={styles.grow}/>
+                                        <h3>{this.props.feedback.currentEmployee[0] ? this.props.feedback.currentEmployee[0].first_name : null}</h3>
+                                        <div style={styles.grow} />
                                     </Toolbar>
                                 </AppBar>
-
-                            </div>
-                            <h2>Overall Summary:</h2>
+                            <br />
+                            <Typography variant="headline" className="center">Overall Summary:</Typography>
                             {/* {JSON.stringify(this.state.totalQualityCount)} */}
                             {/* This will map over the over the total feedback */}
                             {this.state.totalQualityCount.map((totalFeedback, index) => {
@@ -120,22 +147,35 @@ class IndividualEmployeeSummaryView extends Component {
                             })}
                             {/* This is the FAB for making a new feedback but will only show if the user is a supervisor */}
                             {btn}
-                            <h2>Feedbacks:</h2>
+                            < br/>
                             <DisplaySwipeableTabs />
-                            <h2>Latest Feedbacks:</h2>
+                            <Typography variant="subheading" className="center">Latest Feedbacks:</Typography>
                             <div>
                                 <Table>
                                     <TableHead>
-                                        <TableRow styles={styles.row}>
-                                            <TableCell>Category</TableCell>
-                                            <TableCell>Feedback</TableCell>
-                                            <TableCell>Date Given</TableCell>
+                                        <TableRow>
+                                            <TableCell style={styles.tableCell} onClick={() => this.handleSort('id')}>
+                                                <Grid style={styles.grid}>
+                                                    Category
+                                                {this.props.sort.column === 'id' ? (
+                                                        this.props.sort.direction === 'asc' ? (
+                                                            <ArrowDropUp />) : (<ArrowDropDown />)) : null}</Grid></TableCell>
+                                            <TableCell style={styles.tableCell}>
+                                                <Grid style={styles.grid}>
+                                                    Feedback
+                                                </Grid></TableCell>
+                                            <TableCell style={styles.tableCell} onClick={() => this.handleSort('date_created')}>
+                                                <Grid style={styles.grid}>
+                                                    Date Given
+                                                {this.props.sort.column === 'date_created' ? (
+                                                        this.props.sort.direction === 'asc' ? (
+                                                            <ArrowDropUp />) : (<ArrowDropDown />)) : null}</Grid></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {/* {JSON.stringify(this.props.feedback.currentEmployee)} */}
+                                        {/* {JSON.stringify(data)} */}
                                         {/* This will map over the array and pass it as "feedback" to the DisplayFeedback Component */}
-                                        {this.props.feedback.currentEmployee.map((feedbacksAtIndex, index) => {
+                                        {data.map((feedbacksAtIndex, index) => {
                                             return (
                                                 <DisplayFeedback key={index} feedback={feedbacksAtIndex} history={this.props.history} />
                                             )

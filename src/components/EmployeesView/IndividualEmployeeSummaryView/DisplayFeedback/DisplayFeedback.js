@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import '../DisplayFeedback/DisplayFeedback.css';
+import { Grid } from '@material-ui/core';
 //Material Table
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
@@ -33,8 +34,13 @@ const styles = {
         backgroundColor: '#6C9BD1',
     },
     row: {
+        textAlign: 'center',
+        padding: 0,
+    },
+    grid: {
         display: 'flex',
         justifyContent: 'center',
+        alignItems: 'center',
     },
 }; //end of styles
 
@@ -49,26 +55,41 @@ class DisplayFeedback extends Component {
         //This is how the avatar icon changes according to the category name of the feedback
         let content = null;
         if (this.props.feedback.id === 1) {
-            content = <TableCell><Avatar style={styles.praiseAvatar}><Icon>thumb_up</Icon></Avatar></TableCell>
+            content = <TableCell style={styles.row}>
+                        <Grid style={styles.grid}>
+                            <Avatar style={styles.praiseAvatar}><Icon>thumb_up</Icon></Avatar>
+                        </Grid>
+                    </TableCell>
         } else if (this.props.feedback.id === 3) {
-            content = <TableCell><Avatar style={styles.correctAvatar}><Icon>thumb_down</Icon></Avatar></TableCell>
+            content = <TableCell style={styles.row}>
+                        <Grid style={styles.grid}>
+                            <Avatar style={styles.correctAvatar}><Icon>thumb_down</Icon></Avatar>
+                        </Grid>
+                    </TableCell>
         } else if (this.props.feedback.id === 2) {
-            content = <TableCell><Avatar style={styles.instructAvatar}><Icon>thumbs_up_down</Icon></Avatar></TableCell>
+            content = <TableCell style={styles.row}>
+                        <Grid style={styles.grid}>
+                            <Avatar style={styles.instructAvatar}><Icon>thumbs_up_down</Icon></Avatar>
+                        </Grid>
+                    </TableCell>
         }; //end of if-else
 
         return (
-            <div>
-                {JSON.stringify(this.props.feedback.feedbackId)}
             <TableRow>
                 {/* {content} is coming from the changing avatar icon logic */}
                 { content }
                 {/* This is how the details of the feedback are only displaying up to a certain
                 character length instead of the whole feedback displaying */}
-                <TableCell onClick={this.clickHandler}>{this.props.feedback.details.slice(0,15)}...</TableCell>
+                <TableCell onClick={this.clickHandler} style={styles.row}>
+                    <Grid style={styles.grid}>
+                        {this.props.feedback.details.slice(0,15)}...
+                    </Grid>
+                </TableCell>
                 {/* This is how the date is formatted coming back from the server */}
-                <TableCell>{moment(this.props.feedback.date_created).format("MM/DD/YY")}</TableCell>
+                <TableCell style={styles.row}>
+                        {moment(this.props.feedback.date_created).format("MM/DD/YY")}
+                </TableCell>
             </TableRow>
-            </div>
         ) //end of return
     } //end of render
 } //end of DisplayFeedback

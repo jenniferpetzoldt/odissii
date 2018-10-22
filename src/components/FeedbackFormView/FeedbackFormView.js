@@ -4,11 +4,11 @@ import axios from 'axios';
 
 import {
   Grid, FormControl, FormLabel, NativeSelect, InputLabel, Input, FormControlLabel,
-  RadioGroup, Radio, FormGroup, Switch, TextField, Checkbox, Button, InputAdornment
+  RadioGroup, Radio, FormGroup, Switch, TextField, Checkbox, Button
 } from '@material-ui/core';
 import CloudUpload from '@material-ui/icons/CloudUpload';
 
-import Nav from '../Nav/Nav';
+// import Nav from '../Nav/Nav';
 import FeedbackFormAppBar from './FeedbackFormAppBar';
 
 import { USER_ACTIONS } from '../../redux/actions/userActions';
@@ -27,7 +27,7 @@ const mapStateToProps = state => ({
 });
 
 const booleanFields = ['taskRelated', 'cultureRelated', 'followUpNeeded'];
-
+let image = '';
 class FeedbackFormView extends React.Component {
   constructor(props) {
     super(props);
@@ -47,6 +47,10 @@ class FeedbackFormView extends React.Component {
     this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
     if (!this.props.quality_types.length) {
       this.props.dispatch({ type: QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES });
+    }
+    this.config = {
+      cloud_name: 'depzmhoab',
+      upload_preset: 'x6n4tbur',
     }
   }
 
@@ -104,12 +108,12 @@ class FeedbackFormView extends React.Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    const { employeeId, quality_id, taskRelated, cultureRelated, followUpNeeded, followUpDate, details } = this.state;
+    const { employeeId, quality_id, taskRelated, cultureRelated, followUpNeeded, followUpDate, details, image_path } = this.state;
     const supervisorId = this.props.user.id;
     const email = this.props.user.email_address;
 
     const employeeHasPendingFollowUp = this.props.employees.find(employee => Number(employee.id) === Number(employeeId)).incomplete;
-    
+
     const data = {
       supervisorId,
       employeeId,
@@ -119,14 +123,14 @@ class FeedbackFormView extends React.Component {
       cultureRelated,
       details,
       email,
+      image_path,
     };
 
     this.props.dispatch({
       type: FEEDBACK_ACTIONS.ADD_FEEDBACK,
       payload: data
     });
-
-    this.submitImage();
+    
 
     if (employeeHasPendingFollowUp) {
       axios.put(`/api/followup/complete/${employeeId}`)
@@ -154,21 +158,20 @@ class FeedbackFormView extends React.Component {
     }
   };
 
-  submitImage = () => {
-    const image_path = this.state.image_path;
-    const email = this.props.user.email_address;
-    //need feeback id from response of feedback submit
-    const data = { image_path, email }
-    axios({
-      method: 'POST',
-      url: '/api/feedback/image',
-      data: data,
-    }).then((response) => {
-      console.log('submitImage response', response);
-    }).catch((error) => {
-      console.log('submitImage error', error);
-      alert('Unable to submit image');
+  openCloudinary = (event) => {
+    event.preventDefault();
+    window.cloudinary.openUploadWidget(this.config, (error, result) => {
+      if (result) {
+        console.log(result.info.url);
+        this.setState({
+          ...this.state,
+          image_path: result.info.url
+        });
+      } else if (error) {
+        console.log('Error', error);
+      }
     })
+    this.props.dispatch({type:'ADD_IMAGE', payload: image});
   }
 
   backToDashboard = () => {
@@ -189,98 +192,110 @@ class FeedbackFormView extends React.Component {
     const { employees } = this.props;
 
     return (
-      <Grid container>
-        <Grid item xs={12}>
-          <FeedbackFormAppBar />
-          <Nav />
-          <form onSubmit={this.handleFormSubmit}>
-            <FormControl required>
-              <InputLabel shrink htmlFor="employeeId">Employee</InputLabel>
-              <NativeSelect
-                value={employeeId}
-                onChange={this.handleInputChange('employeeId')}
-                input={<Input name="employee" id="employeeId" />}
-              >
-                <option value="" disabled>Select an employee...</option>
-                {employees.map(employee => (
-                  <option key={employee.id} value={employee.id}>
-                    {`${employee.first_name} ${employee.last_name}`}
-                  </option>
-                ))}
-              </NativeSelect>
-            </FormControl>
-            <FormControl required>
-              <FormLabel>Feedback Quality</FormLabel>
-              <RadioGroup
-                aria-label="feedback-type"
-                name="quality_id"
-                value={quality_id}
-                onChange={this.handleInputChange('quality_id')}
-              >
-                {this.props.quality_types.map(quality => (
-                  <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />} />
-                ))}
-              </RadioGroup>
-            </FormControl>
-            <FormControl>
-              <FormLabel>This feedback is:</FormLabel>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={taskRelated}
-                      onChange={this.handleInputChange('taskRelated')}
+      <div className="padding-bottom">
+        <Grid container>
+          <Grid item xs={12}>
+            <FeedbackFormAppBar />
+            <form style={{maxWidth: '350px', margin: 0, padding: '20px', textAlign: 'center'}} onSubmit={this.handleFormSubmit}>
+              <Grid item xs={12} style={{width: '100%'}}>
+                <FormControl style={{width: '75%', marginBottom: '20px'}} required>
+                  <InputLabel shrink htmlFor="employeeId">Employee</InputLabel>
+                  <NativeSelect
+                    value={employeeId}
+                    onChange={this.handleInputChange('employeeId')}
+                    input={<Input name="employee" id="employeeId" />}
+                  >
+                    <option value="" disabled>Select an employee...</option>
+                    {employees.map(employee => (
+                      <option key={employee.id} value={employee.id}>
+                        {`${employee.first_name} ${employee.last_name}`}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl style={{marginBottom: '20px'}} required>
+                  <FormLabel>Feedback Quality</FormLabel>
+                  <RadioGroup
+                    aria-label="feedback-type"
+                    name="quality_id"
+                    value={quality_id}
+                    onChange={this.handleInputChange('quality_id')}
+                  >
+                    {this.props.quality_types.map(quality => (
+                      <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />}/>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl style={{marginBottom: '20px'}}>
+                  <FormLabel>This feedback is:</FormLabel>
+                  <FormGroup>
+                    <FormControlLabel 
+                      control={
+                        <Switch 
+                          checked={taskRelated}
+                          onChange={this.handleInputChange('taskRelated')}
+                        />
+                      }
+                      label="Task-Related"
                     />
-                  }
-                  label="Task-Related"
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={cultureRelated}
-                      onChange={this.handleInputChange('cultureRelated')}
+                    <FormControlLabel 
+                      control={
+                        <Switch 
+                          checked={cultureRelated}
+                          onChange={this.handleInputChange('cultureRelated')}
+                        />
+                      }
+                      label="Culture-Related"
                     />
-                  }
-                  label="Culture-Related"
-                />
-              </FormGroup>
-            </FormControl>
-            <FormControl>
-              <FormControlLabel
-                label="Follow-Up Needed?"
-                control={
-                  <Checkbox
-                    checked={followUpNeeded}
-                    onChange={this.handleInputChange('followUpNeeded')}
+                  </FormGroup>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl style={{marginBottom: '20px'}}>
+                  <FormControlLabel 
+                    label="Follow-Up Needed?"
+                    control={
+                      <Checkbox 
+                        checked={followUpNeeded}
+                        onChange={this.handleInputChange('followUpNeeded')}
+                      />
+                    }
                   />
-                }
-              />
-            </FormControl>
-            {/* follow-up date picker renders if the user checks the "Follow-Up Needed? box" */}
-            {followUpNeeded &&
-              <FormControl>
-                <TextField
-                  type="date"
-                  label="Follow-Up Date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  value={followUpDate}
-                  onChange={this.handleInputChange('followUpDate')}
+                </FormControl>
+              </Grid>
+              {/* follow-up date picker renders if the user checks the "Follow-Up Needed? box" */}
+              {followUpNeeded && 
+              <Grid item xs={12}>
+                <FormControl style={{marginBottom: '20px'}}>
+                  <TextField 
+                    type="date"
+                    label="Follow-Up Date"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    value={followUpDate}
+                    onChange={this.handleInputChange('followUpDate')}
+                  />
+                </FormControl>
+              </Grid>}
+              <Grid item xs={12}>
+                <TextField style={{width: '75%', marginBottom: '20px'}} required
+                  label="Feedback Details"
+                  placeholder="Add feedback details"
+                  value={details}
+                  onChange={this.handleInputChange('details')}
+                  multiline
                 />
               </FormControl>}
             {/* input to upload images through cloudinary */}
             <FormControl>
-              <Input
-                name="image_path"
-                type="file"
-                startAdornment={
-                  <InputAdornment position="start">
-                    <CloudUpload />
-                  </InputAdornment>
-                }
-                onChange={this.handleInputChange('image_path')}
-              />
+              <Button onClick={this.openCloudinary}>
+                <CloudUpload />
+              </Button>
             </FormControl>
             <TextField required
               label="Feedback Details"
@@ -294,9 +309,9 @@ class FeedbackFormView extends React.Component {
               <Button type="submit" color="primary" variant="contained">Submit</Button>
             </div>
           </form>
-        </Grid>
-      </Grid>
 
+        </Grid>
+      </div>
     );
   }
 }

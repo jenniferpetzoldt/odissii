@@ -111,7 +111,7 @@ class FeedbackDetailView extends React.Component {
   };
 
   backToPreviousPage = () => {
-    this.props.history.push('/employees');
+    this.props.history.push('/individualEmployee');
   };
 
   render() {

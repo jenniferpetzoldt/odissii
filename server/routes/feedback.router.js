@@ -2,7 +2,6 @@ const express = require('express');
 const pool = require('../modules/pool');
 const router = express.Router();
 const transporter = require('../modules/nodemailer');
-const cloudinary = require('../modules/cloudinary');
 
 /**
  * GET routes
@@ -221,7 +220,8 @@ router.get('/supervisors/reports', (req, res) => {
     const supervisor = req.query.id;
     const start = req.query.start;
     const end = req.query.end;
-    const query = `SELECT  "feedback"."supervisor_id", ("person"."first_name" || ' ' || "person"."last_name") as supervisor, "feedback"."date_created", ( "employee"."first_name"  || ' ' || "employee"."last_name") as employee, "feedback"."details", "quality_types"."name" as "type"   
+    const query = `SELECT  "feedback"."supervisor_id", ("person"."first_name" || ' ' || "person"."last_name") as supervisor, "feedback"."date_created", 
+    ( "employee"."first_name"  || ' ' || "employee"."last_name") as employee, "feedback"."details", "quality_types"."name" as "type", "feedback_images"."image_path"   
                         FROM "feedback" 
                         JOIN "quality_types"
                         ON "quality_types"."id" = "feedback"."quality_id"
@@ -229,6 +229,8 @@ router.get('/supervisors/reports', (req, res) => {
                         ON "feedback"."supervisor_id" = "person"."id"
                         JOIN "employee" 
                         ON "feedback"."employee_id" = "employee"."id"
+                        FULL OUTER JOIN "feedback_images" 
+                        ON "feedback_images"."feedback_id" = "feedback"."id"
                         WHERE "feedback"."supervisor_id" = $1 AND "date_created" > $2 AND "date_created" < $3;`;
     pool.query(query, [supervisor, start, end]).then((results) => {
       res.send(results.rows);
@@ -245,10 +247,10 @@ router.get('/supervisors/reports', (req, res) => {
 // and a join to get all follow-up records for all employees if no feedback has been given after the follow-up date
 // should set a limit of responses
 router.get('/employee/:id', (req, res) => {
-    if(req.isAuthenticated()) {
-        console.log('in GET /employee');
-        employeeId = req.params.id;
-        const empFeedbackQuery = `SELECT "employee"."first_name", "feedback"."id" as "feedbackId", "date_created", "quality_types"."id", "details"
+  if (req.isAuthenticated()) {
+    console.log('in GET /employee');
+    employeeId = req.params.id;
+    const empFeedbackQuery = `SELECT "employee"."first_name", "feedback"."id" as "feedbackId", "date_created", "quality_types"."id", "details"
                                 FROM "feedback" 
                                 JOIN "quality_types"
                                 ON "feedback"."quality_id" = "quality_types"."id"
@@ -256,22 +258,22 @@ router.get('/employee/:id', (req, res) => {
                                 ON "feedback"."employee_id" = "employee"."id"
                                 WHERE "employee_id" = $1 
                                 ORDER BY "date_created" DESC`;
-  pool.query(empFeedbackQuery, [employeeId])
-    .then(result => res.send(result.rows))
-    .catch(error => {
-      console.log('error in GET /employee', error);
-    });
-} else {
+    pool.query(empFeedbackQuery, [employeeId])
+      .then(result => res.send(result.rows))
+      .catch(error => {
+        console.log('error in GET /employee', error);
+      });
+  } else {
     res.sendStatus(403);
-    }
+  }
 });
 
 //will get all feedback count for specific employee
 router.get('/employeeFeedbackCount/:id', (req, res) => {
-    if(req.isAuthenticated()) {
-        console.log('in GET /employeeFeedbackCount');
-        const employeeId = req.params.id;
-        const empFeedbackCntQuery = `SELECT DISTINCT
+  if (req.isAuthenticated()) {
+    console.log('in GET /employeeFeedbackCount');
+    const employeeId = req.params.id;
+    const empFeedbackCntQuery = `SELECT DISTINCT
 	                            (SELECT COUNT ("feedback"."quality_id")
 	                            FROM "feedback" WHERE "feedback"."quality_id" = 1 AND "feedback"."employee_id" = $1) as Praise,
 	                            (SELECT COUNT ("feedback"."quality_id")
@@ -286,14 +288,14 @@ router.get('/employeeFeedbackCount/:id', (req, res) => {
                                 WHERE "employee"."id" = $1
                                 GROUP BY "employee"."id", "quality_types"."name";`;
 
-        pool.query(empFeedbackCntQuery, [employeeId])
-            .then(result => res.send(result.rows))
-            .catch(error => {
-                console.log('error in GET /employeeFeedbackCount', error);
-            });
-    } else {
-        res.sendStatus(403);
-    }
+    pool.query(empFeedbackCntQuery, [employeeId])
+      .then(result => res.send(result.rows))
+      .catch(error => {
+        console.log('error in GET /employeeFeedbackCount', error);
+      });
+  } else {
+    res.sendStatus(403);
+  }
 });
 
 // gets the most recent feedback record submitted where the req.user.id matches the manager ID
@@ -308,56 +310,59 @@ router.get('/confirmation', (req, res) => {
 router.post('/', (req, res) => {
   if (req.isAuthenticated() && req.user.role === 'supervisor') {
     const data = req.body;
-
-    const queryText =
-      `INSERT INTO "feedback" (
-                "supervisor_id", 
-                "employee_id", 
-                "date_created", 
-                "quality_id", 
-                "task_related", 
-                "culture_related", 
-                "details"
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`;
-
-    pool.query(queryText, [
-      data.supervisorId,
-      data.employeeId,
-      data.dateCreated,
-      data.quality_id,
-      data.taskRelated,
-      data.cultureRelated,
-      data.details
-    ]).then(response => {
-      console.log(`/api/feedback POST success`);
-      const newFeedbackRow = response.rows[0];
-      // nodemailer to send confirmation email to supervisor
-    //   let mail = {
-    //     from: "odissii <app.odissii@gmail.com>",
-    //     to: `${req.body.email}`,
-    //     subject: "odissii password reset",
-    //     text: "",
-    //     html: `<p></p>
-    //     <p></p>`
-    // }
-    // transporter.sendMail(mail, function(err, info) {
-    //     if (err) {
-    //         console.log('nodemailer error', err);
-    //     } else {
-    //         console.log("info.messageId: " + info.messageId);
-    //         console.log("info.envelope: " + info.envelope);
-    //         console.log("info.accepted: " + info.accepted);
-    //         console.log("info.rejected: " + info.rejected);
-    //         console.log("info.pending: " + info.pending);
-    //         console.log("info.response: " + info.response);
-    //     }
-    //     transporter.close();
-    // })
-      res.send(newFeedbackRow);
-    }).catch(error => {
-      console.log(`/api/feedback POST error:`, error);
+    (async () => {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        let query = `INSERT INTO "feedback" ("supervisor_id", "employee_id", "date_created", "quality_id", "task_related", 
+      "culture_related", "details") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;`;
+        let values = [data.supervisorId, data.employeeId, data.dateCreated, data.quality_id, data.taskRelated, data.cultureRelated,
+        data.details];
+        const result = await client.query(query, values);
+        const newFeedbackRow = result.rows[0];
+        const id = result.rows[0].id;
+        query = `INSERT INTO "feedback_images" ("image_path", "feedback_id") VALUES ($1, $2);`;
+        await client.query(query, [data.image_path, id]);
+        // nodemailer to send confirmation email to supervisor
+        let mail = {
+          from: "odissii <app.odissii@gmail.com>",
+          to: `${req.body.email}`,
+          subject: "odissii Feedback Confirmation",
+          text: `You provided a new feedback! Here is a snapshot of the feedback provided.
+                  The details were as follows: ${req.body.details}. You can edit this feedback within the next 72 hours by clicking the link below. `,
+          html: `<p>You provided a new feedback! Here is a snapshot of the feedback provided.</p>
+                <p>The details were as follows: ${req.body.details}.</p>
+                <p>You can edit this feedback within the next 72 hours by clicking the link below. </p>`
+        }
+        transporter.sendMail(mail, function (err, info) {
+          if (err) {
+            console.log('nodemailer error', err);
+          } else {
+            console.log("info.messageId: " + info.messageId);
+            console.log("info.envelope: " + info.envelope);
+            console.log("info.accepted: " + info.accepted);
+            console.log("info.rejected: " + info.rejected);
+            console.log("info.pending: " + info.pending);
+            console.log("info.response: " + info.response);
+          }
+          transporter.close();
+        })
+        await client.query('COMMIT');
+        res.send(newFeedbackRow);
+      } catch (error) {
+        console.log('ROLLBACK', error);
+        await client.query('ROLLBACK');
+        throw error;
+      } finally {
+        client.release();
+      }
+    })().catch((error) => {
+      console.log('CATCH', error);
       res.sendStatus(500);
-    });
+    })
+
+
+
   } else {
     res.sendStatus(401);
   }
@@ -366,14 +371,7 @@ router.post('/', (req, res) => {
 // this must occur after the feedback post   
 router.post('/images', (req, res) => {
   if (req.isAuthenticated() && req.user.role === 'supervisor') {
-    const data = req.body;
-    const queryText = `INSERT INTO "feedback_images" ("image_path", "feedback_id") VALUES ($1, $2);`;
-    pool.query(queryText, [])
-    .then(response => {
 
-    }).catch(error => {
-
-    });
   }
 });
 /**

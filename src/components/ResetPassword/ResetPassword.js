@@ -40,9 +40,8 @@ class ResetPassword extends Component {
             <Typography>Enter the email address associated with this account.</Typography>
                 <Input onChange={this.handleChange} />
                 <br/><br/>
-                <Button onClick={()=>this.props.history.push('/home')}>Cancel</Button>
                 <Button variant="contained" color="primary" onClick={this.handleSubmit}>Submit</Button>
-                
+                <Button onClick={()=>this.props.history.push('/home')}>Cancel</Button>
             </div>
         </div>
         );

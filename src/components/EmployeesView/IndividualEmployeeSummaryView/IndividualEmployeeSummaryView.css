@@ -3,12 +3,8 @@ h2 {
     text-decoration: underline;
 }
 
-.header {
-    top: 0;
-    position: sticky;
-    padding: 10px;
+.container {
     background-color: white;
-    z-index: +1;
 }
 
 .outer {
