@@ -25,7 +25,7 @@ class EmployeesView extends React.Component {
 
   render() {
     let userEmployees;
-
+    // not limited by role type because this content is used under both roles
     if (this.props.user.userName) {
       userEmployees = (
         <SupervisorEmployees />

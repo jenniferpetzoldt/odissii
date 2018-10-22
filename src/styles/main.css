@@ -1,3 +1,16 @@
+.add-staff-div{
+    text-align: center;
+    margin-top: 2vh;
+}
+.add-person-form{
+    display: flex;
+    flex-direction: column; 
+    justify-content: center; 
+}
+.add-person-view{
+    background-color: white; 
+    padding-bottom: 20vh; 
+}
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -18,18 +31,19 @@ body {
 }
 
 form {
-    /* background-color: #dbd5d5;
-    width: 30%;
-    height: 250px;
-    margin: 20px auto;
-    padding: 25px; */
     border-radius: 2px;
     margin-left: 25vw; 
     margin-right: 25vw; 
     margin-top: 10vh;
     margin-bottom: 40vh;
 }
-
+.align-right{
+   margin-top: 3vh; 
+   display: flex;
+   flex-direction: row; 
+   flex-wrap: nowrap;
+   justify-content: flex-start;
+}
 input {
     margin: 5px;
     margin-bottom: 10px;
@@ -90,3 +104,11 @@ li a:hover {
     text-decoration: underline;
     color: #eee;
 }
+
+.outer {
+    border: 1px solid red;
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+  }
+  

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import AllEmployeeAppBar from './EmployeeAppBar/AllEmployeeAppBar';
 import AllEmployeeList from './EmployeeList/AllEmployeeList';
 import Nav from '../../components/Nav/Nav';
-import {Divider} from '@material-ui/core'
+import { Divider } from '@material-ui/core'
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { USER_ROLES } from '../../constants';
 

@@ -71,7 +71,7 @@ class LoginPage extends Component {
       <div>
         {this.renderAlert()}
         <form onSubmit={this.login}>
-          <h1>Login</h1>
+          <h1>odissii</h1>
           <div>
             <FormLabel  htmlFor="username">
               Username:
@@ -94,11 +94,10 @@ class LoginPage extends Component {
               />
             </FormLabel >
           </div>
-          <div>
-             <Button style={styles.button} type={'submit'} variant="contained">Login</Button>
-             <br />
-            <Button onClick={()=>this.props.history.push('/reset/password')}>Forgot Password?</Button>
-            </div>
+          <div className="align-right">
+          <Button onClick={()=>this.props.history.push('/reset/password')}>Forgot Password?</Button>
+            <Button style={styles.button} type={'submit'} variant="contained" color="primary">Login</Button>
+          </div>
         </form>
             
       </div>

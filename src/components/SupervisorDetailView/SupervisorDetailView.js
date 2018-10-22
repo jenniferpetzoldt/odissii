@@ -2,6 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
+import { Grid, Typography } from '@material-ui/core';
+
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { USER_ROLES } from '../../constants';
 
@@ -19,6 +21,7 @@ class SupervisorDetailView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      supervisor: {},
       feedbackHistory: []
     };
   }
@@ -34,11 +37,28 @@ class SupervisorDetailView extends React.Component {
       history.push('/home');
     } else if (!user.isLoading && user.userName && user.role !== USER_ROLES.MANAGER) {
       history.push('/dashboard');
-    } else if (!user.isLoading && user.userName && !this.state.feedbackHistory.length){
-      // console.log('getting supervisor feedback');
-      this.getSupervisorFeedback(this.props.match.params.personId);
+    } else if (!user.isLoading && user.userName) {
+      if (!Object.keys(this.state.supervisor).length) {
+        this.getSupervisorInformation(this.props.match.params.personId);
+      }
+      if (!this.state.feedbackHistory.length) {
+        // console.log('getting supervisor feedback');
+        this.getSupervisorFeedback(this.props.match.params.personId);
+      }
     }
   }
+
+  getSupervisorInformation = supervisorId => {
+    axios.get(`/api/staff/supervisor/profile?id=${supervisorId}`)
+    .then(response => {
+      console.log('got supervisor profile');
+      this.setState({
+        supervisor: response.data[0]
+      });
+    }).catch(error => {
+      console.log(`/api/staff/supervisor/profile?id=${supervisorId} GET request error:`, error);
+    });
+  };
 
   getSupervisorFeedback = supervisorId => {
     axios.get(`/api/feedback/supervisor/${supervisorId}`)
@@ -52,15 +72,27 @@ class SupervisorDetailView extends React.Component {
   };
 
   render() {
-    const { feedbackHistory } = this.state;
+    const { supervisor, feedbackHistory } = this.state;
     return (
       <div>
         <SupervisorDetailAppBar />
-        {/* <h2>supervisor detail view</h2>
-        <button onClick={() => this.props.history.push('/dashboard')}>Back</button> */}
-        <QuarterlySummary data={feedbackHistory} />
-        <PastThreeWeeks data={feedbackHistory} />
-        <PastTwelveMonths data={feedbackHistory} />
+        <Grid container spacing={0}>
+          <Grid item xs={12}>
+            <Typography variant="display1" className="center">{supervisor.first_name && `${supervisor.first_name} ${supervisor.last_name}`}</Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subheading" className="center">Feedback given in the past quarter</Typography>
+            <QuarterlySummary data={feedbackHistory} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subheading" className="center">Feedback given in the past three weeks</Typography>
+            <PastThreeWeeks data={feedbackHistory} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subheading" className="center">Feedback given in the past twelve months</Typography>
+            <PastTwelveMonths data={feedbackHistory} />
+          </Grid>
+        </Grid>
       </div>
     );
   }

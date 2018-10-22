@@ -10,10 +10,6 @@ const mapStateToProps = state => ({
 
 // REACT COMPONENT
 class QuarterlySummary extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     if (!this.props.quality_types.length) {
       this.props.dispatch({type: QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES});

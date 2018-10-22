@@ -2,8 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 // import { USER_ACTIONS } from '../../../redux/actions/userActions';
 
-import { Grid } from '@material-ui/core'; 
+import { Grid, Typography } from '@material-ui/core'; 
 import { FEEDBACK_ACTIONS } from '../../../redux/actions/feedbackActions';
+
 import PastTwelveMonths from './Graphs/PastTwelveMonths';
 import QuarterlySummary from './Graphs/QuarterlySummary';
 import PastThreeWeeks from './Graphs/PastThreeWeeks';
@@ -23,24 +24,26 @@ class SupervisorDashboard extends React.Component {
   render(){
     const { feedbackHistory } = this.props;
     return (
-      // this styling is here until we add padding to the container
-      // to compensate for when bottom nav is showing
-      <div style={{paddingBottom: '70px'}}>
-        <h2>Supervisor Dashboard</h2>
-        <div>
-          Current Quarter
-          <QuarterlySummary data={feedbackHistory} />
-        </div>
-        <div>
-          Past Three Weeks
-          <PastThreeWeeks data={feedbackHistory} />
-        </div>
-        <div>
-          Past Twelve Months
-          <PastTwelveMonths data={feedbackHistory} />
-        </div>
+      <div className="padding-bottom">
+        <Grid container spacing={0}>
+          <Grid item xs={12}>
+            <Typography variant="display1" className="center">{this.props.user.first_name}'s Dashboard</Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subheading" className="center">Feedback given in the past quarter</Typography>
+            <QuarterlySummary data={feedbackHistory} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subheading" className="center">Feedback given in the past three weeks</Typography>
+            <PastThreeWeeks data={feedbackHistory} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="subheading" className="center">Feedback given in the past twelve months</Typography>
+            <PastTwelveMonths data={feedbackHistory} />
+          </Grid>
+        </Grid>
       </div>
-    )
+    );
   }
 }
 

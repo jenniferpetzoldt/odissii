@@ -2,20 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
-import Grid from '@material-ui/core/Grid';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-import NativeSelect from '@material-ui/core/NativeSelect';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormGroup from '@material-ui/core/FormGroup';
-import Switch from '@material-ui/core/Switch';
-import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
+import {
+  Grid, FormControl, FormLabel, NativeSelect, InputLabel, Input, FormControlLabel,
+  RadioGroup, Radio, FormGroup, Switch, TextField, Checkbox, Button, InputAdornment
+} from '@material-ui/core';
+import CloudUpload from '@material-ui/icons/CloudUpload';
 
 import Nav from '../Nav/Nav';
 import FeedbackFormAppBar from './FeedbackFormAppBar';
@@ -48,18 +39,19 @@ class FeedbackFormView extends React.Component {
       followUpNeeded: false,
       followUpDate: '',
       details: '',
+      image_path: '',
     };
   }
 
   componentDidMount() {
     this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
     if (!this.props.quality_types.length) {
-      this.props.dispatch({ type:  QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES});
+      this.props.dispatch({ type: QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES });
     }
   }
-  
+
   componentDidUpdate() {
-    const {user, employees, newPostedFeedback, newPostedFollowup, dispatch, history} = this.props;
+    const { user, employees, newPostedFeedback, newPostedFollowup, dispatch, history } = this.props;
 
     if (!user.isLoading && user.userName === null) {
       history.push('/home');
@@ -70,15 +62,15 @@ class FeedbackFormView extends React.Component {
         this.getEmployees();
       }
     }
-    
+
     if (newPostedFeedback) {
       if (this.state.followUpNeeded) {
         if (newPostedFollowup) {
-          dispatch({type: FEEDBACK_ACTIONS.DISPLAY_FEEDBACK_CONFIRMATION});
+          dispatch({ type: FEEDBACK_ACTIONS.DISPLAY_FEEDBACK_CONFIRMATION });
           history.push('/feedback/confirmation');
         }
       } else {
-        dispatch({type: FEEDBACK_ACTIONS.DISPLAY_FEEDBACK_CONFIRMATION});
+        dispatch({ type: FEEDBACK_ACTIONS.DISPLAY_FEEDBACK_CONFIRMATION });
         history.push('/feedback/confirmation');
       }
     }
@@ -87,13 +79,13 @@ class FeedbackFormView extends React.Component {
   getEmployees = () => {
     const { user, dispatch } = this.props;
     axios.get(`/api/staff/employees/${user.id}`)
-    .then((response) => {
-      const employees = response.data;
-      dispatch({ type: PEOPLE_ACTIONS.SET_SUPERVISOR_EMPLOYEES, payload: employees });
-    }).catch((error) => {
-      console.log('Supervisor Employee List get error', error);
-      alert('Unable to GET supervisor employees');
-    })
+      .then((response) => {
+        const employees = response.data;
+        dispatch({ type: PEOPLE_ACTIONS.SET_SUPERVISOR_EMPLOYEES, payload: employees });
+      }).catch((error) => {
+        console.log('Supervisor Employee List get error', error);
+        alert('Unable to GET supervisor employees');
+      })
   };
 
   handleInputChange = formField => event => {
@@ -112,10 +104,11 @@ class FeedbackFormView extends React.Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    const {employeeId, quality_id, taskRelated, cultureRelated, followUpNeeded, followUpDate, details} = this.state;
+    const { employeeId, quality_id, taskRelated, cultureRelated, followUpNeeded, followUpDate, details } = this.state;
     const supervisorId = this.props.user.id;
+    const email = this.props.user.email_address;
 
-    const employeeHasPendingFollowUp = this.props.employees.find(employee => employee.id == employeeId).incomplete;
+    const employeeHasPendingFollowUp = this.props.employees.find(employee => Number(employee.id) === Number(employeeId)).incomplete;
     
     const data = {
       supervisorId,
@@ -125,6 +118,7 @@ class FeedbackFormView extends React.Component {
       taskRelated,
       cultureRelated,
       details,
+      email,
     };
 
     this.props.dispatch({
@@ -132,21 +126,23 @@ class FeedbackFormView extends React.Component {
       payload: data
     });
 
+    this.submitImage();
+
     if (employeeHasPendingFollowUp) {
       axios.put(`/api/followup/complete/${employeeId}`)
-      .then(() => {
-        if (followUpNeeded) {
-          this.props.dispatch({
-            type: FOLLOW_UP_ACTIONS.ADD_FOLLOWUP,
-            payload: {
-              employeeId,
-              followUpDate
-            }
-          });
-        }
-      }).catch(error => {
-        console.log(`/api/followup/complete/${employeeId} PUT error:`, error);
-      });
+        .then(() => {
+          if (followUpNeeded) {
+            this.props.dispatch({
+              type: FOLLOW_UP_ACTIONS.ADD_FOLLOWUP,
+              payload: {
+                employeeId,
+                followUpDate
+              }
+            });
+          }
+        }).catch(error => {
+          console.log(`/api/followup/complete/${employeeId} PUT error:`, error);
+        });
     } else if (followUpNeeded) {
       this.props.dispatch({
         type: FOLLOW_UP_ACTIONS.ADD_FOLLOWUP,
@@ -158,18 +154,35 @@ class FeedbackFormView extends React.Component {
     }
   };
 
+  submitImage = () => {
+    const image_path = this.state.image_path;
+    const email = this.props.user.email_address;
+    //need feeback id from response of feedback submit
+    const data = { image_path, email }
+    axios({
+      method: 'POST',
+      url: '/api/feedback/image',
+      data: data,
+    }).then((response) => {
+      console.log('submitImage response', response);
+    }).catch((error) => {
+      console.log('submitImage error', error);
+      alert('Unable to submit image');
+    })
+  }
+
   backToDashboard = () => {
     this.props.history.push('/dashboard');
   };
 
   render() {
     const {
-      employeeId, 
-      quality_id, 
-      taskRelated, 
-      cultureRelated, 
-      details, 
-      followUpNeeded, 
+      employeeId,
+      quality_id,
+      taskRelated,
+      cultureRelated,
+      details,
+      followUpNeeded,
       followUpDate
     } = this.state;
 
@@ -205,25 +218,25 @@ class FeedbackFormView extends React.Component {
                 onChange={this.handleInputChange('quality_id')}
               >
                 {this.props.quality_types.map(quality => (
-                  <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />}/>
+                  <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />} />
                 ))}
               </RadioGroup>
             </FormControl>
             <FormControl>
               <FormLabel>This feedback is:</FormLabel>
               <FormGroup>
-                <FormControlLabel 
+                <FormControlLabel
                   control={
-                    <Switch 
+                    <Switch
                       checked={taskRelated}
                       onChange={this.handleInputChange('taskRelated')}
                     />
                   }
                   label="Task-Related"
                 />
-                <FormControlLabel 
+                <FormControlLabel
                   control={
-                    <Switch 
+                    <Switch
                       checked={cultureRelated}
                       onChange={this.handleInputChange('cultureRelated')}
                     />
@@ -233,29 +246,42 @@ class FeedbackFormView extends React.Component {
               </FormGroup>
             </FormControl>
             <FormControl>
-              <FormControlLabel 
+              <FormControlLabel
                 label="Follow-Up Needed?"
                 control={
-                  <Checkbox 
+                  <Checkbox
                     checked={followUpNeeded}
                     onChange={this.handleInputChange('followUpNeeded')}
                   />
                 }
               />
             </FormControl>
-              {/* follow-up date picker renders if the user checks the "Follow-Up Needed? box" */}
-            {followUpNeeded && 
+            {/* follow-up date picker renders if the user checks the "Follow-Up Needed? box" */}
+            {followUpNeeded &&
+              <FormControl>
+                <TextField
+                  type="date"
+                  label="Follow-Up Date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={followUpDate}
+                  onChange={this.handleInputChange('followUpDate')}
+                />
+              </FormControl>}
+            {/* input to upload images through cloudinary */}
             <FormControl>
-              <TextField 
-                type="date"
-                label="Follow-Up Date"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                value={followUpDate}
-                onChange={this.handleInputChange('followUpDate')}
+              <Input
+                name="image_path"
+                type="file"
+                startAdornment={
+                  <InputAdornment position="start">
+                    <CloudUpload />
+                  </InputAdornment>
+                }
+                onChange={this.handleInputChange('image_path')}
               />
-            </FormControl>}
+            </FormControl>
             <TextField required
               label="Feedback Details"
               placeholder="Add feedback details"
@@ -270,7 +296,7 @@ class FeedbackFormView extends React.Component {
           </form>
         </Grid>
       </Grid>
-      
+
     );
   }
 }

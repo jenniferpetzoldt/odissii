@@ -72,7 +72,7 @@ class FeedbackFormConfirmationView extends React.Component {
       
       const feedback = this.props.newPostedFeedback;
       const followup = this.props.newPostedFollowup;
-      const employee = this.props.employees.find(employee => employee.id == feedback.employee_id);
+      const employee = this.props.employees.find(employee => Number(employee.id) === Number(feedback.employee_id));
       
       return (
         <Grid container style={{padding: '10px'}}>

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+
 import axios from 'axios';
 import { FormControl, Input, Button, FormLabel, NativeSelect, Typography } from '@material-ui/core';
 import './addperson.css';
 import { connect } from 'react-redux';
-import AppBar from '../EmployeesView/EmployeeAppBar/AllEmployeeAppBar';
+import AppBar from '../EditPerson/EditPersonAppBar/EditSupervisorAppBar';
 import swal from 'sweetalert';
 
 const mapStateToProps = state => ({
@@ -120,9 +120,9 @@ class AddPerson extends Component {
 
   render() {
     return (
-      <div>
+      <div className="add-person-view">
         <AppBar />
-        <div className="center">
+        <div className="add-staff-div">
           <Typography variant="display1">Add Staff</Typography>
           <br />
           <FormLabel className="label-spacing">Role:</FormLabel>
@@ -139,23 +139,23 @@ class AddPerson extends Component {
           <FormControl>
             <FormLabel>First Name</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('first_name', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Last Name</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('last_name', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Employee ID</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('employeeId', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Email</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('email_address', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Username</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('username', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Password</FormLabel>
             <Input type="password" onChange={(event) => this.handleChangeFor('password', event)} required />
@@ -168,19 +168,19 @@ class AddPerson extends Component {
           <FormControl>
             <FormLabel>First Name</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('first_name', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Last Name</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('last_name', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Employee ID</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('employeeId', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Image</FormLabel>
             <Input type="text" onChange={(event) => this.handleChangeFor('image_path', event)} required />
-          </FormControl>
+          </FormControl><br/>
           <FormControl>
             <FormLabel>Assign Supervisor</FormLabel>
             <NativeSelect onChange={(event) => this.handleChangeFor('supervisor_id', event)} required>

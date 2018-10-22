@@ -74,7 +74,6 @@ const qualityByMonth = (totals, qualityId) => Object.values(totals).map(month =>
 
 const totalsByMonth = (feedback, quality_types) => {
   const months = [12,11,10,9,8,7,6,5,4,3,2,1];
-  const now = moment();
   const feedbackByMonth = months.map(sortFeedbackByMonth(feedback));
 
   return feedbackByMonth.map(feedback => getQualityTotalsForMonth(feedback, quality_types));

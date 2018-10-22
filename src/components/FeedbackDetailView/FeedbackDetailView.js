@@ -7,25 +7,13 @@ import _ from 'lodash';
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { QUALITY_ACTIONS } from '../../redux/actions/qualityActions';
 
-import Grid from '@material-ui/core/Grid';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import ArrowBack from '@material-ui/icons/ArrowBack';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
-import NativeSelect from '@material-ui/core/NativeSelect';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import FormGroup from '@material-ui/core/FormGroup';
-import Switch from '@material-ui/core/Switch';
-import TextField from '@material-ui/core/TextField';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import { 
+  Grid, AppBar, Toolbar, IconButton, FormControl, FormLabel, 
+  FormControlLabel, RadioGroup, Radio, FormGroup, Switch, TextField, 
+  Checkbox, Button, Typography
+} from '@material-ui/core';
+
+import { ArrowBack } from '@material-ui/icons';
 
 const booleanFields = ['task_related', 'culture_related', 'follow_up_needed'];
 
@@ -58,11 +46,9 @@ class FeedbackDetailView extends React.Component {
       history.push('/home');
     } else if (!user.isLoading && user.userName) {
       if (!this.state.originalFeedback) {
-        console.log('axios request')
         axios.get(`/api/feedback/detail/${this.props.match.params.feedbackId}`)
         .then(response => {
           const data = response.data;
-          data.quality_id = data.quality_id.toString();
           if (data.follow_up_date) {
             data.follow_up_date = moment(data.follow_up_date).format('YYYY-MM-DD');
             data.follow_up_needed = true;
@@ -80,7 +66,7 @@ class FeedbackDetailView extends React.Component {
     }
   }
 
-  getQualityName = qualityId => this.props.quality_types.find(type => type.id === qualityId);
+  getQualityName = qualityId => this.props.quality_types.find(type => type.id === qualityId).name;
 
   handleInputChange = fieldName => event => {
     if (booleanFields.includes(fieldName)) {
@@ -145,7 +131,7 @@ class FeedbackDetailView extends React.Component {
             <RadioGroup
               aria-label="feedback-type"
               name="quality_id"
-              value={formFields.quality_id}
+              value={formFields.quality_id.toString()}
               onChange={this.handleInputChange('quality_id')}
             >
               {this.props.quality_types.map(quality => (
@@ -217,15 +203,39 @@ class FeedbackDetailView extends React.Component {
     } else {
       content = (
         <div>
-          <ul>
-            <li>Feedback quality: {this.getQualityName(originalFeedback.quality_id)}</li>
-            <li>Task-Related: {JSON.stringify(originalFeedback.task_related)}</li>
-            <li>Culture-Related: {JSON.stringify(originalFeedback.culture_related)}</li>
-            <li>Details: {originalFeedback.details}</li>
-            {/* {originalFeedback.follow_up_date && <li></li>} */}
-          </ul>
-          
+          <Typography variant="subtitle2" className="center">
+            Feedback Quality
+          </Typography>
+          <Typography variant="h6" className="center">
+            {quality_types.length && this.getQualityName(originalFeedback.quality_id)}
+          </Typography>
+          <Typography variant="h6" className="center">
+            {originalFeedback.task_related && 'Task-Related'}
+            {originalFeedback.culture_related && 'Culture-Related'}
+          </Typography>
+          <Typography variant="h6" className="center">
+            {originalFeedback.culture_related && 'Culture-Related'}
+          </Typography>
+          <Typography variant="subtitle2" className="center">
+            Details
+          </Typography>
+          <Typography variant="body1" className="center">
+            {originalFeedback.details}
+          </Typography>
         </div>
+
+
+
+        // <div>
+        //   <ul>
+        //     <li>Feedback quality: {this.getQualityName(originalFeedback.quality_id)}</li>
+        //     <li>Task-Related: {JSON.stringify(originalFeedback.task_related)}</li>
+        //     <li>Culture-Related: {JSON.stringify(originalFeedback.culture_related)}</li>
+        //     <li>Details: {originalFeedback.details}</li>
+        //     {/* {originalFeedback.follow_up_date && <li></li>} */}
+        //   </ul>
+          
+        // </div>
       );
     }
 

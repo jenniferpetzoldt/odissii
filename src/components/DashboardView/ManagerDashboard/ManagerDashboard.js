@@ -138,7 +138,7 @@ class ManagerDashboard extends React.Component {
   render() {
     return (
       <div className="padding-bottom">
-        <Grid container spacing={0}>
+        <Grid container spacing={0} >
           <Grid item xs={12}>
             <Typography variant="display1" className="center">{this.props.user.first_name}'s Dashboard</Typography>
             <Typography variant="subheading" className="center">Feedback given past 12 months</Typography>
@@ -169,7 +169,7 @@ class ManagerDashboard extends React.Component {
               })}
             </div>
         </Grid>
-      </div>
+     </div>
     );
   }
 }

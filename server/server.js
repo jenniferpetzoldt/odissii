@@ -31,7 +31,6 @@ app.use('/api/user', userRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/followup', followupRouter);
 app.use('/api/staff', staffRouter);
-// app.use('/api/nodemailer', nodemailerRouter);
 app.use('/api/quality', qualityRouter);
 
 

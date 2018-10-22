@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import AppBar from './AppBar/AppBar'
+// import AppBar from './AppBar/AppBar'
 import Nav from '../../components/Nav/Nav';
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import SupervisorDashboard from './SupervisorDashboard/SupervisorDashboard';
@@ -34,9 +34,7 @@ class DashboardView extends React.Component {
 
     return (
       <div>
-        <div>
           {userDashboard}
-        </div>
         <Nav/>
       </div>
       

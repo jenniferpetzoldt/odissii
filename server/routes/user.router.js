@@ -69,7 +69,7 @@ router.put('/createtoken', (req, res) => {
   let queryText = `UPDATE "person" SET "token" = $1, "expiration" = $2 WHERE "email_address" = $3;`;
   pool.query(queryText, [token, expiration, email]).then((result) => {
     let mail = {
-      from: "odissii <j.petzoldt@gmail.com>",
+      from: "odissii <app.odissii@gmail.com>",
       to: `${req.body.email}`,
       subject: "odissii password reset",
       text: "You requested a password reset for your odissii login.",
@@ -81,7 +81,6 @@ router.put('/createtoken', (req, res) => {
       if (err) {
           console.log('nodemailer error', err);
       } else {
-          // see https://nodemailer.com/usage
           console.log("info.messageId: " + info.messageId);
           console.log("info.envelope: " + info.envelope);
           console.log("info.accepted: " + info.accepted);
@@ -102,7 +101,8 @@ router.put('/resetpassword', (req, res) => {
   console.log(updates); 
   const password = encryptLib.encryptPassword(req.body.password);
   console.log(password); 
-  const query = `UPDATE "person" SET "password" = $1, "expiration" = now(), "token" = 'null' WHERE "token" = $2 AND "expiration" > now() AND "email_address" = $3;`;
+  const query = `UPDATE "person" SET "password" = $1, "expiration" = now(), "token" = 'null' 
+                WHERE "token" = $2 AND "expiration" > now() AND "email_address" = $3;`;
   pool.query(query, [password, updates.token, updates.email_address]).then((results) => {
     res.sendStatus(200);
   }).catch((error) => {

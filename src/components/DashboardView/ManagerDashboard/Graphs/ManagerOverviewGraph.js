@@ -18,9 +18,9 @@ class ManagerOverviewGraph extends Component {
             labels: this.props.supervisors,
             datasets: [
                 {
-                    label: 'Correct',
-                    backgroundColor: '#F79B1B',
-                    data: this.props.correct
+                    label: 'Praise',
+                    backgroundColor: '#4AC985',
+                    data: this.props.praise
                 },
                 {
                     label: 'Instruct',
@@ -29,10 +29,10 @@ class ManagerOverviewGraph extends Component {
                     data: this.props.instruct
                 },
                 {
-                    label: 'Praise',
-                    backgroundColor: '#4AC985',
-                    data: this.props.praise
-                }
+                    label: 'Correct',
+                    backgroundColor: '#F79B1B',
+                    data: this.props.correct
+                },
             ]
         }
         return (

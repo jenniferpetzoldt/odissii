@@ -1,6 +1,8 @@
 const express = require('express');
 const pool = require('../modules/pool');
 const router = express.Router();
+const transporter = require('../modules/nodemailer');
+const cloudinary = require('../modules/cloudinary');
 
 /**
  * GET routes
@@ -329,6 +331,28 @@ router.post('/', (req, res) => {
     ]).then(response => {
       console.log(`/api/feedback POST success`);
       const newFeedbackRow = response.rows[0];
+      // nodemailer to send confirmation email to supervisor
+    //   let mail = {
+    //     from: "odissii <app.odissii@gmail.com>",
+    //     to: `${req.body.email}`,
+    //     subject: "odissii password reset",
+    //     text: "",
+    //     html: `<p></p>
+    //     <p></p>`
+    // }
+    // transporter.sendMail(mail, function(err, info) {
+    //     if (err) {
+    //         console.log('nodemailer error', err);
+    //     } else {
+    //         console.log("info.messageId: " + info.messageId);
+    //         console.log("info.envelope: " + info.envelope);
+    //         console.log("info.accepted: " + info.accepted);
+    //         console.log("info.rejected: " + info.rejected);
+    //         console.log("info.pending: " + info.pending);
+    //         console.log("info.response: " + info.response);
+    //     }
+    //     transporter.close();
+    // })
       res.send(newFeedbackRow);
     }).catch(error => {
       console.log(`/api/feedback POST error:`, error);
@@ -341,7 +365,16 @@ router.post('/', (req, res) => {
 // adds images associated with a feedback record, using the ID of the feedback record
 // this must occur after the feedback post   
 router.post('/images', (req, res) => {
+  if (req.isAuthenticated() && req.user.role === 'supervisor') {
+    const data = req.body;
+    const queryText = `INSERT INTO "feedback_images" ("image_path", "feedback_id") VALUES ($1, $2);`;
+    pool.query(queryText, [])
+    .then(response => {
 
+    }).catch(error => {
+
+    });
+  }
 });
 /**
  * PUT routes

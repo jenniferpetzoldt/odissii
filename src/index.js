@@ -34,6 +34,20 @@ const theme = createMuiTheme({
   typography: {
     useNextVariants: true,
   },
+  palette: {
+    primary: {
+      light: '#6c7cff',
+      main: '#0050ff',
+      dark: '#0028ca',
+      contrastText: '#f7fcff'
+    },
+    secondary: {
+      light: '#a3ff7b',
+      main: '#6bf048',
+      dark: '#28bc00',
+      constrastText: '#1f2325',
+    }
+  }
 })
 sagaMiddleware.run(rootSaga);
 

@@ -104,8 +104,9 @@ class EditEmployee extends Component {
                     value={this.state.employee.inactive}/></FormLabel>
                 </FormControl>
                 <br/>
-                    <Button onClick={this.editPerson} variant="contained" color="primary">Save</Button>
                     <Button onClick={()=>this.props.history.push('/dashboard')}>Cancel</Button>
+                    <Button onClick={this.editPerson} variant="contained" color="primary">Save</Button>
+                    
                 </div>
         </div>
         );

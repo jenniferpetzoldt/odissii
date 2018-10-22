@@ -22,5 +22,6 @@
 }
 .padding-bottom{
     padding-bottom: 20vh; 
-    background-color: white; 
+    background-color: white;
+    margin-top: 2vh;  
 }

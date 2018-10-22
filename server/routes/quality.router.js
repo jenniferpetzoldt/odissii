@@ -6,7 +6,7 @@ router.get('/', (req, res) => {
   if(req.isAuthenticated()) {
     pool.query('SELECT * FROM "quality_types";', [])
     .then(response => {
-      console.log('/api/quality GET success:', response.rows);
+      console.log('/api/quality GET success');
       res.send(response.rows);
     }).catch(error => {
       console.log('/api/quality GET error:', error);
