@@ -13,11 +13,10 @@ const styles = {
     },
     input: {
         width: 100,
-    },
+    }, 
     color: {
         color: '#f7fcff'
     }
-
 }
 class EditPersonAppBar extends React.Component {
 
@@ -31,9 +30,8 @@ class EditPersonAppBar extends React.Component {
             <AppBar position="sticky">
                 <Toolbar>
                 <IconButton onClick={this.handleClick}><ArrowBack style={styles.color}/></IconButton>
-                <h3>Edit Supervisor</h3>
+                    <h3>Add Staff</h3>
                     <div style={styles.grow} />
-
                 </Toolbar>
             </AppBar>
         )

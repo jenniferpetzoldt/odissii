@@ -23,6 +23,8 @@ const mapStateToProps = state => ({
 const styles = {
     table: {
         marginTop: 5,
+        paddingBottom: '30vh',
+        backgroundColor: 'white',
     },
     tableCell: {
         padding: 0,
@@ -92,11 +94,13 @@ class AllEmployeeList extends React.Component {
                         <TableRow>
                             <TableCell style={styles.tableCell}
                                 onClick={() => this.handleSort('last_name')}>
+                                {/* Renders column name and conditionally renders arrow to indicate sorting direction */}
                                 <Grid style={styles.grid}>Employee Name{this.props.sort.column === 'last_name' ? (
                                     this.props.sort.direction === 'asc' ? (
                                         <ArrowDropUp />) : (<ArrowDropDown />)) : null}</Grid></TableCell>
                             <TableCell style={styles.tableCell}
                                 onClick={() => this.handleSort('recent')}>
+                                {/* Renders column name and conditionally renders arrow to indicate sorting direction */}
                                 <Grid style={styles.grid}>Last&nbsp;Feedback{this.props.sort.column === 'recent' ? (
                                     this.props.sort.direction === 'asc' ? (
                                         <ArrowDropUp />) : (<ArrowDropDown />)) : null}</Grid></TableCell>
@@ -108,11 +112,13 @@ class AllEmployeeList extends React.Component {
                             return <TableRow key={employee.id} value={employee}>
                                 <TableCell style={styles.tableCell}>
                                     <Grid style={styles.gridRow}>
+                                        {/* Conditionally renders image from database or placeholder avatar image found in images folder */}
                                         <Avatar style={styles.avatar} alt={employee.first_name}
                                             src={employee.image_path || 'images/avatar.png'} />
                                         {employee.first_name}&nbsp;{employee.last_name}</Grid>
                                 </TableCell>
                                 <TableCell style={styles.tableCell}>
+                                    {/* Renders most recent feedback data and does not render anything if there has not been a feedback yet */}
                                     {employee.recent && moment(employee.recent).format("MM/DD/YYYY")}
                                 </TableCell>
                                 <TableCell style={styles.tableCell}>

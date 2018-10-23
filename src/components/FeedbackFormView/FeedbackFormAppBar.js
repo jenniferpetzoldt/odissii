@@ -13,15 +13,15 @@ const styles = {
 class FeedbackFormAppBar extends React.Component {
     handleClick = (event) => {
         this.props.history.push('/employees');
-        this.props.dispatch({ type: 'ADD_NAV_VALUE', payload: 'employees'});
+        this.props.dispatch({ type: 'ADD_NAV_VALUE', payload: 'employees' });
     };
 
     render() {
         return (
             <AppBar position="sticky" >
                 <Toolbar>
-                    <IconButton onClick={this.handleClick}><ArrowBack style={{color: '#f7fcff'}} /></IconButton>
-                    <h3 style={{color: '#f7fcff'}}>New Feedback</h3>
+                    <IconButton onClick={this.handleClick}><ArrowBack style={{ color: '#f7fcff' }} /></IconButton>
+                    <h3 style={{ color: '#f7fcff' }}>New Feedback</h3>
                 </Toolbar>
             </AppBar>
         )

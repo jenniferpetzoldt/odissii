@@ -25,15 +25,13 @@ const styles = {
 };
 
 class Nav extends Component {
-
-
   componentDidMount() {
     this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
   }
 
-handleChange = (event, value) => {
-  this.props.dispatch({ type: 'ADD_NAV_VALUE', payload: value});
-}
+  handleChange = (event, value) => {
+    this.props.dispatch({ type: 'ADD_NAV_VALUE', payload: value });
+  }
 
   // logs user out on click of the button within the navbar
   logout = () => {
@@ -43,7 +41,7 @@ handleChange = (event, value) => {
 
   render() {
     let content = null;
-    
+
     // if manager logged in, will render appropriate nav bar
     if (this.props.user && this.props.user.role === USER_ROLES.MANAGER) {
       content = (

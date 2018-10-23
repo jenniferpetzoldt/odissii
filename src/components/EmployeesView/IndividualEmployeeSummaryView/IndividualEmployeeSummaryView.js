@@ -125,30 +125,34 @@ class IndividualEmployeeSummaryView extends Component {
                 <Grid container spacing={0}>
                     <Grid item xs={12}>
                         <div className="outer">
-                                <AppBar position="sticky">
-                                    <Toolbar>
-                                        {/* This arrow_back icon button will take the user back to the /employees view */}
-                                        <IconButton component={Link} to={"/employees"}>
-                                            <ArrowBack style={styles.color}/>
-                                        </IconButton>
-                                        {/* If the selected employee name is not yet render, display null, otherwise display the first name */}
-                                        <h3>{this.props.feedback.currentEmployee[0] ? this.props.feedback.currentEmployee[0].first_name : null}</h3>
-                                        <div style={styles.grow} />
-                                    </Toolbar>
-                                </AppBar>
+                            <AppBar position="sticky">
+                                <Toolbar>
+                                    {/* This arrow_back icon button will take the user back to the /employees view */}
+                                    <IconButton component={Link} to={"/employees"}>
+                                        <ArrowBack style={styles.color} />
+                                    </IconButton>
+                                    {/* If the selected employee name is not yet render, display null, otherwise display the first name */}
+                                    <h3>{this.props.feedback.currentEmployee[0] ? this.props.feedback.currentEmployee[0].first_name : null}</h3>
+                                    <div style={styles.grow} />
+                                </Toolbar>
+                            </AppBar>
                             <br />
                             <Typography variant="headline" className="center">Overall Summary:</Typography>
                             {/* {JSON.stringify(this.state.totalQualityCount)} */}
                             {/* This will map over the over the total feedback */}
-                            {this.state.totalQualityCount.map((totalFeedback, index) => {
-                                return (
-                                    <DisplayOverallGraph key={index} totalFeedback={totalFeedback} />
-                                )
-                            })}
+                            <Grid item xs={12} md={5}>
+                                {this.state.totalQualityCount.map((totalFeedback, index) => {
+                                    return (
+                                        <DisplayOverallGraph key={index} totalFeedback={totalFeedback} />
+                                    )
+                                })}
+                            </Grid>
                             {/* This is the FAB for making a new feedback but will only show if the user is a supervisor */}
                             {btn}
-                            < br/>
-                            <DisplaySwipeableTabs />
+                            < br />
+                            <Grid item xs={12}>
+                                <DisplaySwipeableTabs />
+                            </Grid>
                             <Typography variant="subheading" className="center">Latest Feedbacks:</Typography>
                             <div>
                                 <Table>

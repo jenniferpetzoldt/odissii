@@ -1,4 +1,4 @@
-const navReducer = (state= '', action) => {
+const navReducer = (state = '', action) => {
     switch (action.type) {
         case 'ADD_NAV_VALUE':
             return action.payload;

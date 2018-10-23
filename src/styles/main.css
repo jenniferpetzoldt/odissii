@@ -16,6 +16,21 @@ body {
     margin: 0;
     background-color: whitesmoke;
 }
+.feedback-card {
+    padding: 5%;
+    margin-left: 20vw;
+    margin-right: 40vw;
+    margin-top: 5vw;
+    margin-bottom: 1vw;
+    align-content: center; 
+    width: 40vw;
+    border: 1px solid gray;
+    text-align: center; 
+    background-color: white; 
+}
+.feedback-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
 .center{
     text-align: center; 
 }

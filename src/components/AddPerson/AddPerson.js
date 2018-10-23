@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-
 import axios from 'axios';
 import { FormControl, Input, Button, FormLabel, NativeSelect, Typography } from '@material-ui/core';
 import './addperson.css';
+import CloudUpload from '@material-ui/icons/CloudUpload';
 import { connect } from 'react-redux';
-import AppBar from '../EditPerson/EditPersonAppBar/EditSupervisorAppBar';
+import AppBar from './AddPersonAppBar.js';
 import swal from 'sweetalert';
 
 const mapStateToProps = state => ({
@@ -24,17 +24,28 @@ class AddPerson extends Component {
       email_address: '',
       role_id: '',
       message: '',
-      supervisor_id: ''
+      supervisor_id: '', 
+      image_path: ''
     };
   }
+  //gets the list of current supervisors to populate a select menu (assigning a supervisor to an employee) 
+  //and sets up the configuration for cloudinary upload 
   componentDidMount() {
     this.props.dispatch({ type: 'FETCH_SUPERVISORS' });
-  }
+    this.config = {
+      cloud_name: 'dnjpvylxb',
+      upload_preset: 'ijxdygxf',
+    }
+  } // end componentDidMount
+
+  //if a user is not logged in, push back to the login page 
   componentDidUpdate() {
     if (!this.props.user.isLoading && this.props.user.userName === null) {
       this.props.history.push('/home');
     }
-  }
+  } // end componentDidUpdate
+
+  // posts a new employee record to the database (employee is not a registered user and does not have its own username and password)
   createEmployee = () => {
     axios({
       method: 'POST',
@@ -58,8 +69,9 @@ class AddPerson extends Component {
       console.log('Error creating employee', error);
       swal('Something went wrong. Please try again.');
     })
+  }// end createEmployee
 
-  }
+  // creates a new user (Supervisor)
   createSupervisor = (event) => {
     event.preventDefault();
     if (this.state.username === '' || this.state.password === '') {
@@ -98,32 +110,34 @@ class AddPerson extends Component {
       });
   } // end createSupervisor
 
+  //sets the value of each input to state 
   handleChangeFor = (propertyName, event) => {
     this.setState({
       [propertyName]: event.target.value,
     });
-  }
+  }//end handleChangeFor
 
-  renderAlert() {
-    if (this.state.message !== '') {
-      return (
-        <h2
-          className="alert"
-          role="alert"
-        >
-          {this.state.message}
-        </h2>
-      );
-    }
-    return (<span />);
-  }
+  //opens the image upload widget and sets an uploaded image's URL to state 
+  openCloudinary = (event) => {
+    event.preventDefault();
+    window.cloudinary.openUploadWidget(this.config, (error, result) => {
+      if (result) {
+        console.log(result.info.url);
+        this.setState({
+          ...this.state,
+          image_path: result.info.url
+        });
+      } else if (error) {
+        console.log('Error', error);
+      }
+    })
+  }//end openCloundinary
 
   render() {
     return (
       <div className="add-person-view">
         <AppBar />
         <div className="add-staff-div">
-          <Typography variant="display1">Add Staff</Typography>
           <br />
           <FormLabel className="label-spacing">Role:</FormLabel>
           <NativeSelect value={this.state.role_id} onChange={(event) => this.handleChangeFor('role_id', event)}>
@@ -132,7 +146,7 @@ class AddPerson extends Component {
             <option value="employee">Employee</option>
           </NativeSelect>
         </div>
-
+  {/* A user selects what type of staff they'd like to add -- supervisor or employee. Then, the correct registration form renders on the DOM depending on what they chose.  */}
         {this.state.role_id === '1' && <div className="add-person-form">
           <Typography>Set up a supervisor's profile and create a username and password for them.</Typography>
           <br />
@@ -178,8 +192,9 @@ class AddPerson extends Component {
             <Input type="text" onChange={(event) => this.handleChangeFor('employeeId', event)} required />
           </FormControl><br/>
           <FormControl>
-            <FormLabel>Image</FormLabel>
-            <Input type="text" onChange={(event) => this.handleChangeFor('image_path', event)} required />
+            <Button onClick={this.openCloudinary}>
+                    <CloudUpload />&nbsp;Upload Image
+            </Button>
           </FormControl><br/>
           <FormControl>
             <FormLabel>Assign Supervisor</FormLabel>

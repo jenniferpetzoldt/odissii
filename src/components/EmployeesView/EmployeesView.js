@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import { USER_ACTIONS } from '../../redux/actions/userActions';
+import { Grid } from '@material-ui/core'
 
 import Nav from '../../components/Nav/Nav';
 import SupervisorEmployees from './SupervisorEmployees/SupervisorEmployees';
@@ -32,10 +33,10 @@ class EmployeesView extends React.Component {
       )
     }
     return (
-      <div>
+      <Grid>
         {userEmployees}
         <Nav />
-      </div>
+      </Grid>
 
     );
   }

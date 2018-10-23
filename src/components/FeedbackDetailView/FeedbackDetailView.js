@@ -7,9 +7,9 @@ import _ from 'lodash';
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { QUALITY_ACTIONS } from '../../redux/actions/qualityActions';
 
-import { 
-  Grid, AppBar, Toolbar, IconButton, FormControl, FormLabel, 
-  FormControlLabel, RadioGroup, Radio, FormGroup, Switch, TextField, 
+import {
+  Grid, AppBar, Toolbar, IconButton, FormControl, FormLabel,
+  FormControlLabel, RadioGroup, Radio, FormGroup, Switch, TextField,
   Checkbox, Button, Typography
 } from '@material-ui/core';
 
@@ -35,7 +35,7 @@ class FeedbackDetailView extends React.Component {
   componentDidMount() {
     this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
     if (!this.props.quality_types.length) {
-      this.props.dispatch({ type:  QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES});
+      this.props.dispatch({ type: QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES });
     }
   }
 
@@ -47,21 +47,21 @@ class FeedbackDetailView extends React.Component {
     } else if (!user.isLoading && user.userName) {
       if (!this.state.originalFeedback) {
         axios.get(`/api/feedback/detail/${this.props.match.params.feedbackId}`)
-        .then(response => {
-          const data = response.data;
-          if (data.follow_up_date) {
-            data.follow_up_date = moment(data.follow_up_date).format('YYYY-MM-DD');
-            data.follow_up_needed = true;
-          } else {
-            data.follow_up_date = '';
-          }
-          this.setState({
-            originalFeedback: data,
-            formFields: {...data}
+          .then(response => {
+            const data = response.data;
+            if (data.follow_up_date) {
+              data.follow_up_date = moment(data.follow_up_date).format('YYYY-MM-DD');
+              data.follow_up_needed = true;
+            } else {
+              data.follow_up_date = '';
+            }
+            this.setState({
+              originalFeedback: data,
+              formFields: { ...data }
+            });
+          }).catch(error => {
+            console.log(`/api/feedback/detail/${this.props.match.params.feedbackId} GET request error:`, error);
           });
-        }).catch(error => {
-          console.log(`/api/feedback/detail/${this.props.match.params.feedbackId} GET request error:`, error);
-        });
       }
     }
   }
@@ -89,25 +89,25 @@ class FeedbackDetailView extends React.Component {
 
   abandonChanges = () => {
     this.setState({
-      formFields: {...this.state.originalFeedback}
+      formFields: { ...this.state.originalFeedback }
     });
   };
 
   handleFormSubmit = event => {
     event.preventDefault();
-    const editedFeedback = {...this.state.formFields, date_edited: new Date()};
+    const editedFeedback = { ...this.state.formFields, date_edited: new Date() };
     axios.put('/api/feedback', editedFeedback)
-    .then(response => {
-      if (!editedFeedback.follow_up_needed) {
-        editedFeedback.follow_up_date = '';
-      }
-      this.setState({
-        originalFeedback: {...editedFeedback},
-        formFields: {...editedFeedback}
+      .then(response => {
+        if (!editedFeedback.follow_up_needed) {
+          editedFeedback.follow_up_date = '';
+        }
+        this.setState({
+          originalFeedback: { ...editedFeedback },
+          formFields: { ...editedFeedback }
+        });
+      }).catch(error => {
+        console.log('/api/feedback PUT error:', error);
       });
-    }).catch(error => {
-      console.log('/api/feedback PUT error:', error);
-    });
   };
 
   backToPreviousPage = () => {
@@ -125,7 +125,7 @@ class FeedbackDetailView extends React.Component {
 
     if (editingAllowed) {
       content = (
-        <form onSubmit={this.handleFormSubmit} style={{marginTop: '20px'}}>
+        <form onSubmit={this.handleFormSubmit} style={{ marginTop: '20px' }}>
           <FormControl required>
             <FormLabel>Feedback Quality</FormLabel>
             <RadioGroup
@@ -135,25 +135,25 @@ class FeedbackDetailView extends React.Component {
               onChange={this.handleInputChange('quality_id')}
             >
               {this.props.quality_types.map(quality => (
-                <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />}/>
+                <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />} />
               ))}
             </RadioGroup>
           </FormControl>
           <FormControl>
             <FormLabel>This feedback is:</FormLabel>
             <FormGroup>
-              <FormControlLabel 
+              <FormControlLabel
                 control={
-                  <Switch 
+                  <Switch
                     checked={formFields.task_related}
                     onChange={this.handleInputChange('task_related')}
                   />
                 }
                 label="Task-Related"
               />
-              <FormControlLabel 
+              <FormControlLabel
                 control={
-                  <Switch 
+                  <Switch
                     checked={formFields.culture_related}
                     onChange={this.handleInputChange('culture_related')}
                   />
@@ -163,28 +163,28 @@ class FeedbackDetailView extends React.Component {
             </FormGroup>
           </FormControl>
           <FormControl>
-            <FormControlLabel 
+            <FormControlLabel
               label="Follow-Up Needed?"
               control={
-                <Checkbox 
+                <Checkbox
                   checked={formFields.follow_up_needed}
                   onChange={this.handleInputChange('follow_up_needed')}
                 />
               }
             />
           </FormControl>
-          {formFields.follow_up_needed && 
-          <FormControl>
-            <TextField 
-              type="date"
-              label="Follow-Up Date"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              value={formFields.follow_up_date}
-              onChange={this.handleInputChange('follow_up_date')}
-            />
-          </FormControl>}
+          {formFields.follow_up_needed &&
+            <FormControl>
+              <TextField
+                type="date"
+                label="Follow-Up Date"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                value={formFields.follow_up_date}
+                onChange={this.handleInputChange('follow_up_date')}
+              />
+            </FormControl>}
           <TextField required
             label="Feedback Details"
             placeholder="Add feedback details"
@@ -192,7 +192,7 @@ class FeedbackDetailView extends React.Component {
             onChange={this.handleInputChange('details')}
             multiline
           />
-          {!_.isEqual(originalFeedback, formFields) && 
+          {!_.isEqual(originalFeedback, formFields) &&
             <div>
               <Button onClick={this.abandonChanges}>Cancel</Button>
               <Button type="submit" color="primary" variant="contained">Save</Button>
@@ -204,23 +204,11 @@ class FeedbackDetailView extends React.Component {
       content = (
         <div>
           <Typography variant="subtitle2" className="center">
-            Feedback Quality
-          </Typography>
-          <Typography variant="h6" className="center">
-            {quality_types.length && this.getQualityName(originalFeedback.quality_id)}
-          </Typography>
-          <Typography variant="h6" className="center">
-            {originalFeedback.task_related && 'Task-Related'}
-            {originalFeedback.culture_related && 'Culture-Related'}
-          </Typography>
-          <Typography variant="h6" className="center">
+            Feedback Quality: {quality_types.length && this.getQualityName(originalFeedback.quality_id)} / {originalFeedback.task_related && 'Task-Related'}
             {originalFeedback.culture_related && 'Culture-Related'}
           </Typography>
           <Typography variant="subtitle2" className="center">
-            Details
-          </Typography>
-          <Typography variant="body1" className="center">
-            {originalFeedback.details}
+            Details: {originalFeedback.details}
           </Typography>
         </div>
 
@@ -234,7 +222,7 @@ class FeedbackDetailView extends React.Component {
         //     <li>Details: {originalFeedback.details}</li>
         //     {/* {originalFeedback.follow_up_date && <li></li>} */}
         //   </ul>
-          
+
         // </div>
       );
     }
@@ -243,31 +231,27 @@ class FeedbackDetailView extends React.Component {
       <Grid container justify="center">
         <AppBar position="sticky">
           <Toolbar>
-            <IconButton onClick={this.backToPreviousPage}><ArrowBack /></IconButton>
-            <Typography>Feedback Detail</Typography>
+            <IconButton onClick={this.backToPreviousPage}><ArrowBack style={{ color: '#f7fcff' }} /></IconButton>
+            <h3 style={{ color: '#f7fcff' }}>Feedback Detail</h3>
           </Toolbar>
         </AppBar>
         <Grid item xs={12}>
-          <Typography variant="h4" className="center">
-            {`${originalFeedback.first_name} ${originalFeedback.last_name}`}
-          </Typography>
-          <Typography variant="subtitle2" className="center">
-            Feedback created on
-          </Typography>
-          <Typography variant="h6" className="center">
-            {moment(originalFeedback.date_created).format("dddd, MMMM Do YYYY")}
-          </Typography>
-          {originalFeedback.date_edited &&
-            <div>
-              <Typography variant="subtitle2" className="center">
-                Last edited on
-              </Typography>
-              <Typography variant="h6" className="center">
-                {moment(originalFeedback.date_edited).format("dddd, MMMM Do YYYY")}
-              </Typography>
-            </div>
-          }
-          {content}
+          <div className="feedback-card">
+            <Typography variant="h4" className="center">
+              {`${originalFeedback.first_name} ${originalFeedback.last_name}`}
+            </Typography>
+            <Typography variant="subtitle2" className="center">
+              Feedback created on: {moment(originalFeedback.date_created).format("MM/DD/YY")}
+            </Typography>
+            {originalFeedback.date_edited &&
+              <div>
+                <Typography variant="subtitle2" className="center">
+                  Last edited on: {moment(originalFeedback.date_edited).format("dddd, MMMM Do YYYY")}
+                </Typography>
+              </div>
+            }
+            {content}
+          </div>
         </Grid>
       </Grid>
     );

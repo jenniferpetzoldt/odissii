@@ -14,11 +14,11 @@ const styles = {
         margin: 5
     },
 }
-
 class EditSupervisor extends Component {
     constructor(props) {
         super(props);
-        //these will be generated through the component did mount thing 
+        //the values of state will be populated after the component mounts and does an axios request to get the supervisor's information.
+        //then, the input fields will be filled with the supervisor's information (from state)
         this.state = {
             supervisor: {}
         }
@@ -34,7 +34,16 @@ class EditSupervisor extends Component {
             }).catch((error) => {
                 console.log('Error getting supervisor', error);
             });
-    };
+    };// end componentDidMount
+
+  //if no one is logged in, push back to login page 
+  componentDidUpdate() {
+    if (!this.props.user.isLoading && this.props.user.userName === null) {
+      this.props.history.push('/home');
+    }
+  }//end componentDidUpdate
+  
+    // edits details of a supervisor 
     editPerson = () => {
         axios({
             method: 'PUT',
@@ -48,8 +57,9 @@ class EditSupervisor extends Component {
             swal('Warning', `Something went wrong editing ${this.state.supervisor.first_name} ${this.state.supervisor.last_name}. Please try again in a few minutes`);
             console.log('Cannot update supervisor', error);
         })
+    }//end editPerson
 
-    }
+    //sets the state of the input fields based on user changes 
     handleChangefor = (event, property) => {
         this.setState({
             supervisor: {
@@ -57,10 +67,10 @@ class EditSupervisor extends Component {
                 [property]: event.target.value
             }
         })
-    }
+    }//end handleChangeFor
     render() {
         return (
-            <div>
+            <div className="padding-bottom">
                 <AppBar />
                 <div className="edit-person-form">
                     <h1>Edit Supervisor</h1>

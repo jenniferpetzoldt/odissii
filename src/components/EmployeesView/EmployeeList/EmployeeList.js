@@ -26,7 +26,10 @@ const mapStateToProps = state => ({
 const styles = {
     table: {
         marginTop: 5,
-    },
+        paddingBottom: '30vh',
+        backgroundColor: 'white',
+           
+},
     tableCell: {
         padding: 0,
         textAlign: 'center',
@@ -105,13 +108,14 @@ class EmployeeList extends React.Component {
 
     render() {
         let content = null;
-        // array, property, direction
-        // lodash orderBy
+        // uses lodash orderBy function to sort the data based on column and direction
         let data = orderBy(this.props.employees, this.props.sort.column, this.props.sort.direction);
 
         if (this.props.user.userName) {
+            // filters the data based on the search paramiter entered in the search bar in the appbar
             let filteredEmployees = data.filter(
                 (employee) => {
+                    // toLowerCase removes case sensitivity from the search bar
                     return employee.first_name.toLowerCase().indexOf(this.props.search.toLowerCase()) !== -1 ||
                         employee.last_name.toLowerCase().indexOf(this.props.search.toLowerCase()) !== -1;
                 }
@@ -122,6 +126,7 @@ class EmployeeList extends React.Component {
                         <TableRow>
                             <TableCell style={styles.tableCell}
                                 onClick={() => this.handleSort('last_name')}>
+                                {/* Renders column name and conditionally renders arrow to indicate sorting direction */}
                                 <Grid style={styles.grid}>
                                     Employee Name{this.props.sort.column === 'last_name' ? (
                                         this.props.sort.direction === 'asc' ? (
@@ -129,6 +134,7 @@ class EmployeeList extends React.Component {
                             <TableCell style={styles.tableCell}
                                 onClick={() => this.handleSort('recent')}>
                                 <Grid style={styles.grid}>
+                                    {/* Renders column name and conditionally renders arrow to indicate sorting direction */}
                                     Last&nbsp;Feedback{this.props.sort.column === 'recent' ? (
                                         this.props.sort.direction === 'asc' ? (
                                             <ArrowDropUp />) : (<ArrowDropDown />)) : null}</Grid></TableCell>
@@ -144,12 +150,14 @@ class EmployeeList extends React.Component {
                             return <TableRow key={employee.id} value={employee} onClick={() => this.handleClick(employee.id)}>
                                 <TableCell style={styles.tableCell}>
                                     <Grid style={styles.gridRow}>
+                                        {/* Conditionally renders image from database or placeholder avatar image found in images folder */}
                                         <Avatar style={styles.avatar} alt={employee.first_name && employee.last_name}
                                             src={employee.image_path || 'images/avatar.png'} />
                                         {employee.first_name}&nbsp;{employee.last_name}
                                     </Grid>
                                 </TableCell>
                                 <TableCell style={styles.tableCell}>
+                                    {/* Renders most recent feedback data and does not render anything if there has not been a feedback yet */}
                                     {employee.recent && moment(employee.recent).format("MM/DD/YYYY")}
                                 </TableCell>
                                 <TableCell style={styles.tableCell}>

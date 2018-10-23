@@ -17,7 +17,6 @@ const mapStateToProps = state => ({
         margin: 5
     },
 }
-
 class EditEmployee extends Component {
     constructor(props){
         super(props);
@@ -33,13 +32,24 @@ class EditEmployee extends Component {
     }
     componentDidMount = () => {
         this.getEmployee();
-    }
+    }//end componentDidMount 
+
+    //if no one is logged in, push back to login page 
+    componentDidUpdate() {
+        if (!this.props.user.isLoading && this.props.user.userName === null) {
+          this.props.history.push('/home');
+        }
+      }//end componentDidUpdate
+
     //if an employee is removed, they will be marked inactive in the database. 
-    // only active employees should render in employee lists. 
+    //only active employees should render in employee lists. 
     editPerson = () => {
             console.log('editing person');
             this.props.dispatch({type: 'UPDATE_EMPLOYEE', payload: this.state.employee});
-          }
+    }//
+
+    //retrieves the information for an employee where their ID matches the route parameters and sets their information to state. 
+    //this will populate all of the input fields so that a user (Manager) can easily edit the existing details  
     getEmployee = () => {
         const { match: { params } } = this.props;
         axios.get(`/api/staff/employee/profile?id=${params.personId}`)
@@ -53,6 +63,7 @@ class EditEmployee extends Component {
               console.log('Error getting employee', error); 
           });
     }
+    //changes the values of state based on input field changes 
     handleChangeFor = (property, event) => {
             this.setState({
                 employee:{
@@ -61,6 +72,7 @@ class EditEmployee extends Component {
                 }
             })
         }
+    //toggles whether or not an employee is active 
     handleCheck = () => {
           this.setState({
               inactive: true
@@ -68,22 +80,22 @@ class EditEmployee extends Component {
       }
     render(){
         return(
-            <div>
+            <div className="padding-bottom">
             <AppBar/>
                 <div className="edit-person-form">
                 <h1>Edit Employee</h1>
                 <FormControl style={styles.formControl}>
                     <TextField label="First Name" value={this.state.employee.first_name} onChange={(event)=>this.handleChangeFor('first_name', event)}/>
-                </FormControl>
+                </FormControl><br/>
                 <FormControl style={styles.formControl}>
                     <TextField label="Last Name" value={this.state.employee.last_name} onChange={(event)=>this.handleChangeFor('last_name', event)}/>
-                </FormControl>
+                </FormControl><br/>
                 <FormControl style={styles.formControl}>
                     <TextField label="Employee ID" value={this.state.employee.employeeId} onChange={(event)=>this.handleChangeFor('employeeId', event)}/>
-                </FormControl>
+                </FormControl><br/>
                 <FormControl style={styles.formControl}>
                     <TextField label="Image Path" value={this.state.employee.image_path} onChange={(event)=>this.handleChangeFor('image_path', event)}/>
-                </FormControl>
+                </FormControl><br/>
                 <FormControl style={styles.formControl}>
                     <FormLabel>Reassign Supervisor</FormLabel>
                     <NativeSelect
@@ -95,7 +107,7 @@ class EditEmployee extends Component {
                           );
                       })}
                     </NativeSelect>
-                </FormControl>
+                </FormControl><br/>
                 <FormControl>
                     <FormLabel>Remove?
                     <Checkbox

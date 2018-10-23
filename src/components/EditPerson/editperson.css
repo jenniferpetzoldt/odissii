@@ -2,3 +2,8 @@
     margin-left: 25vw; 
     margin-right: 25vw; 
 }
+.padding-bottom{
+    padding-bottom: 20vh; 
+    background-color: white;
+    margin-top: 2vh;  
+}

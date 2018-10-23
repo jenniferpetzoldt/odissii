@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import AllEmployeeAppBar from './EmployeeAppBar/AllEmployeeAppBar';
 import AllEmployeeList from './EmployeeList/AllEmployeeList';
 import Nav from '../../components/Nav/Nav';
-import { Divider } from '@material-ui/core'
+import { Divider, Grid } from '@material-ui/core'
 import { USER_ACTIONS } from '../../redux/actions/userActions';
 import { USER_ROLES } from '../../constants';
 
@@ -30,18 +30,18 @@ class SupervisorEmployees extends React.Component {
         // conditional rendering so that only users with a manager role can see this view
         if (this.props.user.userName && this.props.user.role === USER_ROLES.MANAGER) {
             allEmployees = (
-                <div>
+                <Grid>
                     <AllEmployeeAppBar />
                     <Divider />
                     <AllEmployeeList />
-                </div>
+                </Grid>
             )
         }
         return (
-            <div>
+            <Grid>
                 {allEmployees}
                 <Nav />
-            </div>
+            </Grid>
         );
     }
 }

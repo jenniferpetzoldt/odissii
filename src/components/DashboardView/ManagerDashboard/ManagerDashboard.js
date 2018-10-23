@@ -31,22 +31,29 @@ class ManagerDashboard extends React.Component {
   componentWillMount() {
     this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
     this.getSupervisors();
-  }
+  } // end componentDidMount
+
+  //navigates to a view where the Manager can edit a Supervisor's profile 
   editPerson = (id) => {
     this.props.history.push(`/edit/supervisor/${id}`);
-  }
+  }// end editPerson
+
+   // gets a list of all of the supervisors that are overseen by the logged in user (Manager)
   getSupervisors = () => {
     axios({
       method: 'GET',
       url: '/api/staff/supervisors'
     }).then((response) => {
+      // set the supervisors to redux and sortSupervisors(), which filters the response.data to be more usable  
       this.props.dispatch({ type: PEOPLE_ACTIONS.SET_SUPERVISORS, payload: response.data });
       this.sortSupervisors(response.data);
     }).catch((error) => {
       console.log('Error getting supervisors', error);
     })
-  }
+  }// end getSupervisors
+
   //this gets the past twelve months of feedback counting how many praise, instruct, and correct feedback each supervisor has given 
+  //takes in an array of supervisors's IDs to get the counts for each supervisor that exists.
   getFeedback = (idArray) => {
     let today = new Date();
     let end = moment(today).format('L');
@@ -56,18 +63,19 @@ class ManagerDashboard extends React.Component {
         method: 'GET',
         url: `/api/feedback/supervisors/count?id=${idArray[i]}&start=${start}&end=${end}`
       }).then((response) => {
-        // assign the praise/instruct/correct counts to the specific supervisor
-        // finds the index of the supervisors array in local state and assigns the values of praise/instruct/correct to the right supervisor based on the response from the server
         let feedback = response.data[0];
-        //if feedback exists, add it to the supervisor array on state 
+        //if feedback exists, add it to the supervisor array on state, which already contains a list of supervisors and counts of praise, instruct, and correct (each starting at 0)
         if(feedback !== undefined){
+          //find the index of the supervisors array where the supervisor ID matches the response from the server 
             let index = this.state.supervisors.findIndex(supervisor => supervisor.supervisor_id === feedback.sid);
             let supervisorFeedback = this.state.supervisors;
+            //insert the response.data into the supervisors array at the index discovered above then reset the value of state to include these values 
             supervisorFeedback[index] = { ...supervisorFeedback[index], praise: parseInt(feedback.praise), instruct: parseInt(feedback.instruct), correct: parseInt(feedback.correct) };
             this.setState({
               supervisors: supervisorFeedback
             })
         }
+        // run sortData() to count all praise, instruct, and correct feedback records for all supervisors, to be used in the Manager Overview graph 
         this.sortData();
       }).catch((error) => {
         console.log('Error getting feedback counts', error);
@@ -100,13 +108,15 @@ class ManagerDashboard extends React.Component {
     //navigates to the supervisor edit page
     this.props.history.push(`/view/supervisor/${id}`);
   }
+  //sends the ID of a supervisor to redux and then navigates the Manager to the "Employees" page. Upon that page load, the id is retrieved from redux and used to populate that view with a list of all of that supervisor's employees. 
   navToEmployees = (id) => {
     this.props.dispatch({ type: 'SET_SUPERVISOR_TO_VIEW', payload: { id: id } });
-    //need to dispatch the supervisor's id to redux and then push to it 
     this.props.history.push(`/employees/`);
   }
-  //this alphabetizes all supervisors and places the results into an object, starting all praise/instruct/correct counts at 0 
-  // labels array is used to label the manager overview bar chart 
+  // processes an array of supervisors in three ways: 
+  //1. alphabetizes all supervisors and places the results into an object, starting all praise/instruct/correct counts at 0. supervisors array is used to create the cards displaying on the DOM for each supervisor
+  //2. creates a labels array which is used to label the manager overview bar chart 
+  //3. creates an ID array which contains the ID of each supervisor. This is used to make axios requests for detailed feedback counts for each supervisor. 
   sortSupervisors = (array) => {
     let supervisors = [];
     let IDs = [];
@@ -116,15 +126,17 @@ class ManagerDashboard extends React.Component {
       IDs.push(array[i].supervisor_id);
       labels.push(array[i].last_name + ', ' + array[i].first_name);
     }
-    //need this array to map over where there are 0 
     this.setState({
       ...this.state,
       supervisors: supervisors,
       labels: labels
     });
+    //calls two functions to get counts of feedback and full feedback details for each supervisor 
     this.getFeedback(IDs);
     this.getFeedbackDetails(IDs);
   }
+  // maps through supervisors array in state, extracts the count of praise, instructive, and corrective feedback, and stores each category in an array. 
+  // these arrays are used to create the manager overview graph 
   sortData = () => {
     let praise = this.state.supervisors.map(supervisor => supervisor.praise);
     let instruct = this.state.supervisors.map(supervisor => supervisor.instruct);

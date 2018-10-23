@@ -9,7 +9,7 @@ import sort from './sortReducer';
 import id from './idReducer';
 import quality_types from './qualityReducer';
 import nav from './navReducer';
-import image from './imageReducer';
+
 
 //Lets make a bigger object for our store, with the objects from our reducers.
 //This is why we get this.props.reduxStore.user.isLoading
@@ -25,7 +25,6 @@ const store = combineReducers({
   id,
   quality_types,
   nav,
-  image,
 });
 
 export default store;
