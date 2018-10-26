@@ -38,7 +38,7 @@ const mapStateToProps = state => ({
   newPostedFollowup: state.followup.newPostedFollowup,
 });
 
-const booleanFields = ['taskRelated', 'cultureRelated', 'followUpNeeded'];
+
 let image = '';
 class FeedbackFormView extends React.Component {
   constructor(props) {
@@ -57,6 +57,8 @@ class FeedbackFormView extends React.Component {
 
   componentDidMount() {
     this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
+
+    // if quality_types is not populated, fetch the data from the server
     if (!this.props.quality_types.length) {
       this.props.dispatch({ type: QUALITY_ACTIONS.FETCH_FEEDBACK_QUALITY_CATEGORIES });
     }
@@ -69,16 +71,23 @@ class FeedbackFormView extends React.Component {
   componentDidUpdate() {
     const { user, employees, newPostedFeedback, newPostedFollowup, dispatch, history } = this.props;
 
+    // if the user is unauthenticated, redirect to the home page
     if (!user.isLoading && user.userName === null) {
       history.push('/home');
+    // if the user is a manager and not a supervisor, redirect to the user to their dashboard
     } else if (!user.isLoading && user.userName && user.role !== USER_ROLES.SUPERVISOR) {
       history.push('/dashboard');
+    // if the user is loaded and is a supervisor, get that supervisor's employees
     } else if (!user.isLoading && user.userName && user.role === USER_ROLES.SUPERVISOR) {
       if (!employees.length) {
         this.getEmployees();
       }
     }
 
+    /* If newPostedFeedback, and optionally newPostedFollowup are populated, then the user
+    has successfully submitted the feedback form, and the newly posted feedback and optional
+    follow up have been stored in the database and returned back to the client.
+    These are stored in Redux so that they may be displayed on the Feedback Confirmation View. */
     if (newPostedFeedback) {
       if (this.state.followUpNeeded) {
         if (newPostedFollowup) {
@@ -92,6 +101,7 @@ class FeedbackFormView extends React.Component {
     }
   }
 
+  // get the list of employees for the current supervisor
   getEmployees = () => {
     const { user, dispatch } = this.props;
     axios.get(`/api/staff/employees/${user.id}`)
@@ -104,14 +114,19 @@ class FeedbackFormView extends React.Component {
       })
   };
 
+  // handle changes to the form input fields
   handleInputChange = formField => event => {
+    // these fields contain boolean values which need to be flipped if the user clicks them
+    const booleanFields = ['taskRelated', 'cultureRelated', 'followUpNeeded'];
+
     // if the form field is for a boolean value...
     if (booleanFields.includes(formField)) {
-      //...toggle that value
+      // ...toggle that value
       this.setState(prevState => ({
         [formField]: !prevState[formField]
       }));
     } else {
+      // or if not, set the form field to the new value
       this.setState({
         [formField]: event.target.value
       });
@@ -120,12 +135,20 @@ class FeedbackFormView extends React.Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
+
+    // form fields from the component state
     const { employeeId, quality_id, taskRelated, cultureRelated, followUpNeeded, followUpDate, details, image_path } = this.state;
+
+    // the id and email of the logged in, authenticated user
     const supervisorId = this.props.user.id;
     const email = this.props.user.email_address;
 
+    /*
+    find the employee from the list of employees stored in Redux using the "employeeId"
+    */
     const employeeHasPendingFollowUp = this.props.employees.find(employee => Number(employee.id) === Number(employeeId)).incomplete;
 
+    // the data to send to the server in the POST body
     const data = {
       supervisorId,
       employeeId,
@@ -138,12 +161,16 @@ class FeedbackFormView extends React.Component {
       image_path,
     };
 
+    // Saga to send new feedback to the server
     this.props.dispatch({
       type: FEEDBACK_ACTIONS.ADD_FEEDBACK,
       payload: data
     });
 
-
+    /* 
+    if the employee currently has pending follow up, complete that pending follow up,
+    then, if the new feedback added itself includes a follow up reminder, add that new follow up
+    */
     if (employeeHasPendingFollowUp) {
       axios.put(`/api/followup/complete/${employeeId}`)
         .then(() => {
@@ -159,6 +186,8 @@ class FeedbackFormView extends React.Component {
         }).catch(error => {
           console.log(`/api/followup/complete/${employeeId} PUT error:`, error);
         });
+    /* if the user did not have pending follow up when the form was submitted,
+    add the new followup to the database */
     } else if (followUpNeeded) {
       this.props.dispatch({
         type: FOLLOW_UP_ACTIONS.ADD_FOLLOWUP,
@@ -170,6 +199,7 @@ class FeedbackFormView extends React.Component {
     }
   };
 
+  // used for feedback image upload
   openCloudinary = (event) => {
     event.preventDefault();
     window.cloudinary.openUploadWidget(this.config, (error, result) => {
@@ -190,6 +220,8 @@ class FeedbackFormView extends React.Component {
     this.props.history.push('/dashboard');
   };
 
+  // take a known name of a feedback quality and return its corresponding id from the
+  // quality_types list stored in Redux
   getQualityIdByName = name => this.props.quality_types.find(type => type.name === name).id;
 
   render() {
@@ -205,6 +237,7 @@ class FeedbackFormView extends React.Component {
 
     const { employees } = this.props;
 
+    // get the ids of the quality_types, to be used in the radio buttons
     let praiseId, instructId, correctId;
     if (this.props.quality_types.length) {
       praiseId = this.getQualityIdByName('praise');
@@ -246,11 +279,6 @@ class FeedbackFormView extends React.Component {
                   {praiseId && <FormControlLabel key={praiseId} value={praiseId.toString()} label={'Praise'} control={<Radio />} />}
                   {instructId && <FormControlLabel key={instructId} value={instructId.toString()} label={'Instruct'} control={<Radio />} />}
                   {correctId && <FormControlLabel key={correctId} value={correctId.toString()} label={'Correct'} control={<Radio />} />}
-                  
-
-                  {/* {this.props.quality_types.map(quality => (
-                    <FormControlLabel key={quality.id} value={quality.id.toString()} label={quality.name} control={<Radio />} />
-                  ))} */}
                 </RadioGroup>
               </FormControl>
             </Grid>

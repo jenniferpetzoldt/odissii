@@ -24,7 +24,6 @@ const qualityByMonth = (totals, qualityId) => Object.values(totals).map(month =>
 
 const totalsByMonth = (feedback, quality_types) => {
     const months = [4, 3, 2, 1];
-    const now = moment();
     const feedbackByMonth = months.map(sortFeedbackByMonth(feedback));
     return feedbackByMonth.map(feedback => getQualityTotalsForMonth(feedback, quality_types));
 };
@@ -49,23 +48,6 @@ const getQualityTotalsForMonth = (feedbackForMonth, quality_types) => {
         summary[entry.id] += 1;
         return summary;
     }, { ...blankMonthlySummary });
-};
-
-const feedbackQualityForCurrentQuarter = (feedback, quality_types) => {
-    const currentQuarter = moment().quarter();
-
-    const quality = feedback.reduce((summary, entry) => {
-        if (moment(entry.date_created).quarter() === currentQuarter) {
-            summary[quality_types.find(type => type.id === entry.quality_id).name] += 1;
-        }
-        return summary;
-    }, {
-            praise: 0,
-            instruct: 0,
-            correct: 0
-        });
-
-    return Object.values(quality);
 };
 
 class DisplayQuarterlyGraph extends Component {
@@ -99,7 +81,7 @@ class DisplayQuarterlyGraph extends Component {
                     }
                 }]
             },
-        }
+        } //End of options for the bar graph
 
         let barData = {
             datasets: [{
@@ -122,17 +104,17 @@ class DisplayQuarterlyGraph extends Component {
                 borderWidth: 1,
             }],
             labels: getQuarterlyMonthlyNames(),
-        }
+        } //End of bar data
+
         return (
             <div>
-                {/* {JSON.stringify(monthlyTotals)} */}
                 <Bar
                     data={barData}
                     options={options}
                 />
             </div>
-        )
-    }
-}
+        ) //End of return
+    } //End of render
+} //End of DisplayQuarterlyGraph
 
 export default connect(mapStateToProps)(DisplayQuarterlyGraph);

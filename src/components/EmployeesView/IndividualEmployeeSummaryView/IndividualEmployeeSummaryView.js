@@ -29,7 +29,6 @@ import TableRow from '@material-ui/core/TableRow';
 
 import orderBy from 'lodash/orderBy';
 
-
 const mapStateToProps = state => ({
     user: state.user,
     feedback: state.feedback.feedback,
@@ -56,13 +55,17 @@ const styles = {
     },
     color: {
         color: '#f7fcff',
+    },
+    bigGrid: {
+        margin: 10,
+        justifyContent: 'center',
     }
 }; //end of styles
 
 const invertDirection = {
     asc: 'desc',
     desc: 'asc'
-}
+}; //End of invertDirection
 
 class IndividualEmployeeSummaryView extends Component {
     constructor(props) {
@@ -70,14 +73,14 @@ class IndividualEmployeeSummaryView extends Component {
         this.state = {
             totalQualityCount: [],
         }
-    } //end of constructor
+    } //End of constructor
 
     componentDidMount() {
         this.getTotalFeedbackCount();
         orderBy(this.state.feedback, this.props.sort.column, this.props.sort.direction);
         this.props.dispatch({ type: USER_ACTIONS.FETCH_USER });
         this.props.dispatch({ type: FEEDBACK_ACTIONS.FETCH_CURRENT_EMPLOYEE_FEEDBACK, payload: { id: this.props.id } });
-    } //end of componentDidMount
+    } //End of componentDidMount
 
     //This will get the total feedback of each category for the employee
     getTotalFeedbackCount() {
@@ -90,19 +93,22 @@ class IndividualEmployeeSummaryView extends Component {
                 console.log('error in getTotalFeedbackCount', error);
                 alert('Cannot get total client feedback counts!')
             });
-    } //end of getTotalFeedbackCount()
+    } //End of getTotalFeedbackCount()
 
+    //Pushes the user to creating a new feedback view
     createNewFeedbackClick = (event) => {
         this.props.history.push('/feedback/new');
-    }
+    } //End of createNewFeedbackClick
 
+    //Sorts the column 
     handleSort = columnName => {
         this.props.dispatch({ type: 'ADD_COLUMN_TO_SORT', payload: columnName });
         let direction = this.props.sort.column === columnName ? invertDirection[this.props.sort.direction] : 'desc';
         this.props.dispatch({ type: 'ADD_SORT_DIRECTION', payload: direction })
-    }
+    } //End of handleSort
 
     render() {
+        //FAB will render depending on what role the user is logged in as
         let btn = null;
         if (this.props.user.role === USER_ROLES.SUPERVISOR) {
             btn = (
@@ -117,7 +123,9 @@ class IndividualEmployeeSummaryView extends Component {
             btn = (
                 <div></div>
             )
-        }
+        }; //End of if-else
+
+        //Allows the data to be sorted
         let data = orderBy(this.props.feedback.currentEmployee, this.props.sort.column, this.props.sort.direction);
 
         return (
@@ -138,9 +146,8 @@ class IndividualEmployeeSummaryView extends Component {
                             </AppBar>
                             <br />
                             <Typography variant="headline" className="center">Overall Summary:</Typography>
-                            {/* {JSON.stringify(this.state.totalQualityCount)} */}
                             {/* This will map over the over the total feedback */}
-                            <Grid item xs={12} md={5}>
+                            <Grid style={styles.bigGrid} item xs={12} >
                                 {this.state.totalQualityCount.map((totalFeedback, index) => {
                                     return (
                                         <DisplayOverallGraph key={index} totalFeedback={totalFeedback} />
@@ -150,9 +157,11 @@ class IndividualEmployeeSummaryView extends Component {
                             {/* This is the FAB for making a new feedback but will only show if the user is a supervisor */}
                             {btn}
                             < br />
-                            <Grid item xs={12}>
+                            {/* This is where the swipeable graphs will display */}
+                            <Grid style={styles.bigGrid} item xs={12} >
                                 <DisplaySwipeableTabs />
                             </Grid>
+                            {/* Table below will display a list of all of the feedbacks */}
                             <Typography variant="subheading" className="center">Latest Feedbacks:</Typography>
                             <div>
                                 <Table>
@@ -177,8 +186,8 @@ class IndividualEmployeeSummaryView extends Component {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {/* {JSON.stringify(data)} */}
-                                        {/* This will map over the array and pass it as "feedback" to the DisplayFeedback Component */}
+                                        {/* This will map over "data" and pass it as "feedback" to the DisplayFeedback Component
+                                                in order to display all of the feedbacks*/}
                                         {data.map((feedbacksAtIndex, index) => {
                                             return (
                                                 <DisplayFeedback key={index} feedback={feedbacksAtIndex} history={this.props.history} />
@@ -191,8 +200,8 @@ class IndividualEmployeeSummaryView extends Component {
                     </Grid>
                 </Grid>
             </div>
-        )
-    }
-}
+        ) //end of return
+    } //end of render
+} //end of IndividualEmployeeSummaryView class
 
 export default withStyles(styles)(connect(mapStateToProps)(IndividualEmployeeSummaryView));

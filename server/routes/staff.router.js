@@ -8,7 +8,7 @@ const encryptLib = require('../modules/encryption');
 // get all supervisors associated with a superisor (req.user.id)
 // should join with person and get first_name, last_name, username, person.id, role_id
 router.get('/supervisors', (req, res) => {
-    if (req.isAuthenticated) {
+    if (req.isAuthenticated()) {
         const query = `SELECT "supervisor_id", "first_name", "last_name" FROM "supervisor_manager" JOIN "person" ON "supervisor_id" = "person"."id" WHERE "manager_id" = $1 ORDER BY "last_name";`;
         pool.query(query, [req.user.id]).then((results) => {
             res.send(results.rows);
@@ -23,7 +23,7 @@ router.get('/supervisors', (req, res) => {
 });
 //gets a specific supervisor's profile to edit their details or delete them 
 router.get('/supervisor/profile', (req, res) => {
-    if(req.isAuthenticated){
+    if(req.isAuthenticated()){
         const supervisor = req.query.id;
         const query = `SELECT "id", "username", "first_name", "last_name", "employeeId", "email_address" FROM "person" WHERE "id" = $1;`;
         pool.query(query, [supervisor]).then((results) => {
@@ -38,7 +38,7 @@ router.get('/supervisor/profile', (req, res) => {
 })
 //gets a specific employee's profile to edit their details or delete them
 router.get('/employee/profile', (req, res) => {
-    if(req.isAuthenticated){
+    if(req.isAuthenticated()){
         const employee = req.query.id;
         const query = `SELECT "employee"."id", "first_name", "last_name", "employee"."employeeId", "image_path", "inactive", "supervisor_employee"."supervisor_id" FROM "employee" JOIN "supervisor_employee" ON "employee_id" = "supervisor_employee"."employee_id" WHERE "employee"."id" = $1;`;
         pool.query(query, [employee]).then((results) => {
@@ -100,7 +100,7 @@ router.get('/allEmployees', (req, res) => {
 // creates a new employee in the employee table and returns its id
 // then adds employee to manager_employee junction table
 router.post('/employee', (req, res) => {
-    if(req.isAuthenticated){
+    if(req.isAuthenticated()){
 ( async()=> {
     const client = await pool.connect();
     try {
@@ -134,7 +134,7 @@ router.post('/employee', (req, res) => {
 // creates a new supervisor in the person table 
 // then adds supervisor to the manager_supervisor junction table
 router.post('/register/supervisor', (req, res) => {
-    if(req.isAuthenticated){
+    if(req.isAuthenticated()){
 ( async()=> {
     const client = await pool.connect();
     try {
@@ -186,7 +186,7 @@ router.post('/register/supervisor', (req, res) => {
  */
 // edits an employee's record 
 router.put('/employee', (req, res) => {
-    if (req.isAuthenticated){
+    if (req.isAuthenticated()){
         console.log('editing employee', req.body);
         ( async()=> {
             const client = await pool.connect();
@@ -219,7 +219,7 @@ router.put('/employee', (req, res) => {
 });
 // edits a supervisor's record in person table 
 router.put('/supervisor', (req, res) => {
-    if (req.isAuthenticated){
+    if (req.isAuthenticated()){
         const detailsToEdit = req.body; 
         console.log(detailsToEdit);
         const query = `UPDATE "person" SET "first_name" = $1, "last_name" = $2, "employeeId" = $3, "email_address" = $4, "username" = $5 WHERE "id" = $6;`;
@@ -239,7 +239,7 @@ router.put('/supervisor', (req, res) => {
  */
 //deletes employee from junction table and then deletes an employee's record 
 router.delete('/employee', (req, res) => {
-    if (req.isAuthenticated){
+    if (req.isAuthenticated()){
         const supervisorToDelete = req.query.id; 
     const query = `DELETE FROM "supervisor_employee" WHERE "employee_id" = $1;`;
     pool.query(query, [supervisorToDelete]).then((response) => {
@@ -254,7 +254,7 @@ router.delete('/employee', (req, res) => {
 });
 // deletes a supervisor/employee relationship then deletes a supervisor record
 router.delete('/supervisor', (req, res) => {
-    if (req.isAuthenticated){
+    if (req.isAuthenticated()){
         const supervisorToDelete = req.query.id; 
     const query = `DELETE FROM "supervisor_manager" WHERE "supervisor_id" = $1;`;
     pool.query(query, [supervisorToDelete]).then((response) => {

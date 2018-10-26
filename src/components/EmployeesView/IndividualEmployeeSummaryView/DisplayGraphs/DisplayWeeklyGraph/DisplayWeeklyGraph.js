@@ -15,6 +15,7 @@ const lastFourWeeksOnly = feedback => moment(feedback.date_created).isSameOrAfte
 const getIdForQuality = (types, name) => types.find(type => type.name === name).id;
 
 const totalsByWeek = (feedback, quality_types) => {
+    //For each week for the past three whole weeks, get the total of each quality type given
     const weekFourStart = moment().subtract(4, 'weeks').startOf('isoWeek');
     const weekThreeStart = moment().subtract(3, 'weeks').startOf('isoWeek');
     const weekTwoStart = moment().subtract(2, 'weeks').startOf('isoWeek');
@@ -46,6 +47,7 @@ const totalsByWeek = (feedback, quality_types) => {
     }));
 };
 
+//Gets the names of the past four weeks from today's date
 const namesOfPastFourWeeks = () => ([
     moment().subtract(4, 'weeks').startOf('isoWeek').format('MMM DD'),
     moment().subtract(3, 'weeks').startOf('isoWeek').format('MMM DD'),
@@ -53,6 +55,7 @@ const namesOfPastFourWeeks = () => ([
     moment().subtract(1, 'weeks').startOf('isoWeek').format('MMM DD'),
 ]);
 
+//Get the totals objects for each week and return an array with only the values for a specific quality 
 const qualityByWeek = (totals, qualityId) => Object.values(totals).map(week => week[qualityId]);
 
 class DisplayWeeklyGraph extends Component {
@@ -83,7 +86,7 @@ class DisplayWeeklyGraph extends Component {
                     }
                 }]
             },
-        }
+        }; //end of options for the bar graph
 
         let barData = {
             datasets: [{
@@ -102,18 +105,17 @@ class DisplayWeeklyGraph extends Component {
                 backgroundColor: '#F79B1B',
             }],
             labels: weekNames,
-        }
+        }; //end of barData
+
         return (
             <div>
-                {/* {JSON.stringify(fourWeeksFeedback)}
-                {JSON.stringify(weeklyQualityTotals)} */}
                 <Bar
                     data={barData}
                     options={options}
                 />
             </div>
-        )
-    }
-}
+        ) //End of return
+    } //End of render
+}; //End of DisplayWeeklyGraph class
 
 export default connect(mapStateToProps)(DisplayWeeklyGraph);

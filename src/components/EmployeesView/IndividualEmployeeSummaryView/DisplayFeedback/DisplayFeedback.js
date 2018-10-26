@@ -46,9 +46,10 @@ const styles = {
 
 class DisplayFeedback extends Component {
 
+    //This will push the user to see a more detailed page of the feedback view
     clickHandler = (event) => {
         this.props.history.push(`/feedback/detail/${this.props.feedback.feedbackId}`)
-    }
+    } //end of clickHandler
 
     render() {
 

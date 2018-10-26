@@ -22,7 +22,9 @@ const mapStateToProps = state => ({
   quality_types: state.quality_types,
 });
 
-// feedback/detail/:feedbackId
+// url path - feedback/detail/:feedbackId
+
+/* This component displays the details of an entry of feedback already given */
 class FeedbackDetailView extends React.Component {
   constructor(props) {
     super(props);
@@ -45,10 +47,13 @@ class FeedbackDetailView extends React.Component {
     if (!user.isLoading && user.userName === null) {
       history.push('/home');
     } else if (!user.isLoading && user.userName) {
+      // if the user is loaded but the feedback has not been loaded, fetch the feedback
       if (!this.state.originalFeedback) {
         axios.get(`/api/feedback/detail/${this.props.match.params.feedbackId}`)
           .then(response => {
             const data = response.data;
+            // if the feedback has a follow up date, convert it to a format to display on the screen
+            // set the boolean "follow_up_needed" to true so that we can display the follow up date on the screen
             if (data.follow_up_date) {
               data.follow_up_date = moment(data.follow_up_date).format('YYYY-MM-DD');
               data.follow_up_needed = true;
@@ -123,7 +128,13 @@ class FeedbackDetailView extends React.Component {
     const editingCutoffTime = moment(originalFeedback.date_created).add(72, 'hours');
     const editingAllowed = moment().isBefore(editingCutoffTime);
 
+    /*
+    if the feedback was created less than 72 hours ago, show the feedback content
+    within an editable form, which the user can use to edit the feedback and resave it.
+    Otherwise, show the feedback details as text for viewing only.
+    */
     if (editingAllowed) {
+      // the content if the user is allowed to edit the feedback
       content = (
         <form onSubmit={this.handleFormSubmit} style={{ marginTop: '20px' }}>
           <FormControl required>
@@ -192,6 +203,7 @@ class FeedbackDetailView extends React.Component {
             onChange={this.handleInputChange('details')}
             multiline
           />
+          {/* the Save/Cancel buttons only show if the feedback has been changed */}
           {!_.isEqual(originalFeedback, formFields) &&
             <div>
               <Button onClick={this.abandonChanges}>Cancel</Button>
@@ -201,6 +213,7 @@ class FeedbackDetailView extends React.Component {
         </form>
       );
     } else {
+      // the content if the editing window has expired
       content = (
         <div>
           <Typography variant="subtitle2" className="center">
@@ -211,19 +224,6 @@ class FeedbackDetailView extends React.Component {
             Details: {originalFeedback.details}
           </Typography>
         </div>
-
-
-
-        // <div>
-        //   <ul>
-        //     <li>Feedback quality: {this.getQualityName(originalFeedback.quality_id)}</li>
-        //     <li>Task-Related: {JSON.stringify(originalFeedback.task_related)}</li>
-        //     <li>Culture-Related: {JSON.stringify(originalFeedback.culture_related)}</li>
-        //     <li>Details: {originalFeedback.details}</li>
-        //     {/* {originalFeedback.follow_up_date && <li></li>} */}
-        //   </ul>
-
-        // </div>
       );
     }
 
@@ -236,7 +236,7 @@ class FeedbackDetailView extends React.Component {
           </Toolbar>
         </AppBar>
         <Grid item xs={12}>
-          <div className="feedback-card">
+          <div className="padding-top">
             <Typography variant="h4" className="center">
               {`${originalFeedback.first_name} ${originalFeedback.last_name}`}
             </Typography>

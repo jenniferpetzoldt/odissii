@@ -18,7 +18,7 @@ const styles = {
         color: '#f7fcff'
     }
 }
-class EditPersonAppBar extends React.Component {
+class AddPersonAppBar extends React.Component {
 
     handleClick = (event) => {
         console.log('in handleClick');
@@ -38,4 +38,4 @@ class EditPersonAppBar extends React.Component {
     }
 }
 
-export default withRouter(connect(mapStateToProps)(EditPersonAppBar));
+export default withRouter(connect(mapStateToProps)(AddPersonAppBar));
